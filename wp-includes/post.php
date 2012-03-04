@@ -423,8 +423,6 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
  * @return array Ancestor IDs or empty array if none are found.
  */
 function get_post_ancestors( $post ) {
-	global $wpdb;
-
 	$post = get_post( $post );
 
 	if ( !$post )

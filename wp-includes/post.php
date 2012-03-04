@@ -402,6 +402,7 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 		$_post = sanitize_post($_post, $filter);
 
 	if ( $output == OBJECT ) {
+		$_post = new _WP_Post_Wrapper( $_post );
 		return $_post;
 	} elseif ( $output == ARRAY_A ) {
 		$__post = get_object_vars($_post);
@@ -411,6 +412,41 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 		return $__post;
 	} else {
 		return $_post;
+	}
+}
+
+/**
+ * Wrapper class to preserve back-compat for $post->ancestors
+ *
+ * @since 3.4.0
+ */
+class _WP_Post_Wrapper {
+
+	private $post;
+
+	function __construct( $post ) {
+		$this->post = $post;
+	}
+
+	function __isset( $key ) {
+		if ( 'ancestors' == $key )
+			return true;
+
+		return isset( $this->post->$key );
+	}
+
+	function __get( $key ) {
+		if ( 'ancestors' == $key )
+			return get_post_ancestors( $this->post );
+
+		return $this->post->$key;
+	}
+
+	function __set( $key, $value ) {
+		if ( 'ancestors' == $key )
+			return;
+
+		$this->post->$key = $value;
 	}
 }
 
@@ -3316,13 +3352,8 @@ function get_page_uri($page) {
 		$page = get_page($page);
 	$uri = $page->post_name;
 
-	// A page cannot be it's own parent.
-	if ( $page->post_parent == $page->ID )
-		return $uri;
-
-	while ($page->post_parent != 0) {
-		$page = get_page($page->post_parent);
-		$uri = $page->post_name . "/" . $uri;
+	foreach ( $page->ancestors as $parent ) {
+		$uri = get_page($parent)->post_name . "/" . $uri;
 	}
 
 	return $uri;

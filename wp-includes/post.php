@@ -4641,11 +4641,12 @@ function _get_post_ancestors(&$_post) {
 		return;
 
 	$id = $_post->ancestors[] = $_post->post_parent;
-	while ( $ancestor = $wpdb->get_var( $wpdb->prepare("SELECT `post_parent` FROM $wpdb->posts WHERE ID = %d LIMIT 1", $id) ) ) {
+
+	while ( $ancestor = get_post( $id ) ) {
 		// Loop detection: If the ancestor has been seen before, break.
-		if ( ( $ancestor == $_post->ID ) || in_array($ancestor,  $_post->ancestors) )
+		if ( empty( $ancestor->post_parent ) || ( $ancestor->post_parent == $_post->ID ) || in_array($ancestor->post_parent,  $_post->ancestors) )
 			break;
-		$id = $_post->ancestors[] = $ancestor;
+		$id = $_post->ancestors[] = $ancestor->post_parent;
 	}
 }
 

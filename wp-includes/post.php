@@ -378,7 +378,6 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 		else
 			return $null;
 	} elseif ( is_object($post) && empty($post->filter) ) {
-		_get_post_ancestors($post);
 		$_post = sanitize_post($post, 'raw');
 		wp_cache_add($post->ID, $_post, 'posts');
 	} elseif ( is_object($post) && 'raw' == $post->filter ) {
@@ -394,7 +393,6 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 			$_post = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->posts WHERE ID = %d LIMIT 1", $post_id));
 			if ( ! $_post )
 				return $null;
-			_get_post_ancestors($_post);
 			$_post = sanitize_post($_post, 'raw');
 			wp_cache_add($_post->ID, $_post, 'posts');
 		}

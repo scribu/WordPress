@@ -287,8 +287,6 @@ function _wp_menu_item_classes_by_context( &$menu_items ) {
 				}
 			}
 		}
-	} elseif ( ! empty( $queried_object->post_type ) && is_post_type_hierarchical( $queried_object->post_type ) ) {
-		_get_post_ancestors( $queried_object );
 	} elseif ( ! empty( $queried_object->taxonomy ) && is_taxonomy_hierarchical( $queried_object->taxonomy ) ) {
 		$term_hierarchy = _get_term_hierarchy( $queried_object->taxonomy );
 		$term_to_ancestor = array();
@@ -419,7 +417,7 @@ function _wp_menu_item_classes_by_context( &$menu_items ) {
 					'post_type' == $parent_item->type &&
 					! empty( $queried_object->post_type ) &&
 					is_post_type_hierarchical( $queried_object->post_type ) &&
-					in_array( $parent_item->object_id, $queried_object->ancestors ) &&
+					in_array( $parent_item->object_id, get_post_ancestors( $queried_object ) ) &&
 					$parent_item->object != $queried_object->ID
 				) ||
 

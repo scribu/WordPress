@@ -402,7 +402,8 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 		$_post = sanitize_post($_post, $filter);
 
 	if ( $output == OBJECT ) {
-		$_post = new _WP_Post_Wrapper( $_post );
+		if ( is_a( $_post, 'stdClass' ) )
+			$_post = new _WP_Post_Wrapper( $_post );
 		return $_post;
 	} elseif ( $output == ARRAY_A ) {
 		$__post = get_object_vars($_post);

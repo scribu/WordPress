@@ -436,7 +436,7 @@ class _WP_Post_Wrapper {
 		return isset( $this->post->$key );
 	}
 
-	function __get( $key ) {
+	function &__get( $key ) {
 		if ( 'ancestors' == $key )
 			return get_post_ancestors( $this->post );
 

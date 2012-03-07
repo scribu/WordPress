@@ -417,7 +417,7 @@ function _wp_menu_item_classes_by_context( &$menu_items ) {
 					'post_type' == $parent_item->type &&
 					! empty( $queried_object->post_type ) &&
 					is_post_type_hierarchical( $queried_object->post_type ) &&
-					in_array( $parent_item->object_id, get_post_ancestors( $queried_object ) ) &&
+					in_array( $parent_item->object_id, $queried_object->ancestors ) &&
 					$parent_item->object != $queried_object->ID
 				) ||
 

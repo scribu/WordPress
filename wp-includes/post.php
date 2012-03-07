@@ -440,7 +440,7 @@ class _WP_Post_Wrapper {
 		if ( 'ancestors' == $key )
 			$ref = get_post_ancestors( $this->post );
 		else
-			$ref = $this->post->$key;
+			$ref = &$this->post->$key;
 
 		return $ref;
 	}

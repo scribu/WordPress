@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Generic container for easily manipulating an ordered list of items
+ * A single menu item, with children
  */
 class WP_Admin_Menu_Item {
 
@@ -138,6 +138,9 @@ class WP_Admin_Menu_Item {
 }
 
 
+/**
+ * The root menu item, with some convenience methods
+ */
 class WP_Admin_Menu extends WP_Admin_Menu_Item {
 
 	function __construct() {

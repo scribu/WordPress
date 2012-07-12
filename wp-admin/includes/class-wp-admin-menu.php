@@ -51,18 +51,7 @@ class WP_Admin_Menu_Item {
 		return true;
 	}
 
-	function replace( $payload ) {
-		$item = $this->prepare_item( $payload );
-
-		if ( ! isset( $this->children[ $item->id ] ) )
-			return false;
-
-		$this->children[ $item->id ] = $item;
-
-		return true;
-	}
-
-	function add_before( $ref_id, $payload ) {
+	function insert_before( $ref_id, $payload ) {
 		$new_array = array();
 
 		$item = $this->prepare_item( $payload );
@@ -85,7 +74,7 @@ class WP_Admin_Menu_Item {
 		return true;
 	}
 
-	function add_after( $ref_id, $payload ) {
+	function insert_after( $ref_id, $payload ) {
 		$new_array = array();
 
 		$item = $this->prepare_item( $payload );
@@ -106,6 +95,13 @@ class WP_Admin_Menu_Item {
 		$this->children = $new_array;
 
 		return true;
+	}
+
+	function replace( $ref_id, $payload ) {
+		if ( !$this->insert_after( $ref_id, $payload ) )
+			return false;
+
+		$this->remove( $ref_id );
 	}
 
 	function contains( $id ) {

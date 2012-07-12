@@ -1277,20 +1277,21 @@ function add_comments_page( $page_title, $menu_title, $capability, $menu_slug, $
  *
  * @since 3.1.0
  *
- * @param string $menu_slug The slug of the menu
+ * @param string $menu_url The url of the menu
  * @return array|bool The removed menu on success, False if not found
  */
-function remove_menu_page( $menu_slug ) {
-	global $menu;
+function remove_menu_page( $menu_url ) {
+	global $admin_menu;
 
-	foreach ( $menu as $i => $item ) {
-		if ( $menu_slug == $item[2] ) {
-			unset( $menu[$i] );
-			return $item;
-		}
-	}
+	$item = $admin_menu->get( $menu_url, 'url' );
+	if ( !$item )
+		return false;
 
-	return false;
+	$admin_menu->remove( $item->id );
+
+	// TODO: return legacy numeric array
+
+	return true;
 }
 
 /**
@@ -1298,24 +1299,26 @@ function remove_menu_page( $menu_slug ) {
  *
  * @since 3.1.0
  *
- * @param string $menu_slug The slug for the parent menu
- * @param string $submenu_slug The slug of the submenu
+ * @param string $menu_url The url for the parent menu
+ * @param string $submenu_url The url of the submenu
  * @return array|bool The removed submenu on success, False if not found
  */
-function remove_submenu_page( $menu_slug, $submenu_slug ) {
-	global $submenu;
+function remove_submenu_page( $menu_url, $submenu_url ) {
+	global $admin_menu;
 
-	if ( !isset( $submenu[$menu_slug] ) )
+	$item = $admin_menu->get( $menu_url, 'url' );
+	if ( !$item )
 		return false;
 
-	foreach ( $submenu[$menu_slug] as $i => $item ) {
-		if ( $submenu_slug == $item[2] ) {
-			unset( $submenu[$menu_slug][$i] );
-			return $item;
-		}
-	}
+	$submenu = $item->get( $submenu_url, 'url' );
+	if ( !$submenu )
+		return false;
 
-	return false;
+	$item->remove( $submenu->id );
+
+	// TODO: return legacy numeric array
+
+	return true;
 }
 
 /**

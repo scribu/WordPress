@@ -108,15 +108,23 @@ class WP_Admin_Menu_Item {
 		return isset( $this->children[ $id ] );
 	}
 
-	function get( $id ) {
+	function get( $id, $field = 'id' ) {
+		if ( 'id' != $field ) {
+			$items = $this->get_children( array( $field => $id ) );
+			if ( empty( $items ) )
+				return false;
+
+			return reset( $items );
+		}
+
 		if ( !isset( $this->children[ $id ] ) )
 			return false;
 
 		return $this->children[ $id ];
 	}
 
-	function get_children() {
-		return $this->children;
+	function get_children( $args = array() ) {
+		return wp_list_filter( $this->children, $args );
 	}
 
 	function remove( $id ) {
@@ -148,6 +156,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 		parent::append( $payload );
 	}
 
+	// Convenience method
 	function add_submenu( $parent_id, $payload ) {
 		$parent = $this->get( $parent_id );
 
@@ -157,6 +166,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 		return $parent->append( $payload );
 	}
 
+	// Super-convenience method
 	function add_first_submenu( $parent_id, $title, $_index = 5 ) {
 		$parent = $this->get( $parent_id );
 

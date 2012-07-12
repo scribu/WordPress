@@ -18,11 +18,25 @@ class WP_Admin_Menu_Items {
 	}
 
 	function append( $payload ) {
-		// TODO: allow overwrite or have a replace() method ?
-
 		$item = $this->prepare_item( $payload );
 
+		if ( isset( $this->items[ $item->id ] ) )
+			return false;
+
 		$this->items[ $item->id ] = $item;
+
+		return true;
+	}
+
+	function replace( $payload ) {
+		$item = $this->prepare_item( $payload );
+
+		if ( ! isset( $this->items[ $item->id ] ) )
+			return false;
+
+		$this->items[ $item->id ] = $item;
+
+		return true;
 	}
 
 	protected function prepare_item( $payload ) {

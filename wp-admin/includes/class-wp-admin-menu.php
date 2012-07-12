@@ -163,7 +163,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 		if ( ! $parent )
 			return false;
 
-		$this->add_submenu( $parent_id, array(
+		return $parent->append( array(
 			'title' => $title,
 			'cap' => $parent->cap,
 			'url' => $parent->url,

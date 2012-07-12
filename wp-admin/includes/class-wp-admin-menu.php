@@ -17,7 +17,7 @@ class WP_Admin_Menu_Items {
 		return $cap;
 	}
 
-	function add( $payload ) {
+	function append( $payload ) {
 		// TODO: allow overwrite or have a replace() method ?
 
 		$item = $this->prepare_item( $payload );
@@ -104,7 +104,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Items {
 
 	protected $submenus = array();
 
-	function add( $payload ) {
+	function append( $payload ) {
 		$payload = (object) wp_parse_args( $payload, array(
 			'icon' => 'div'
 		) );
@@ -113,14 +113,14 @@ class WP_Admin_Menu extends WP_Admin_Menu_Items {
 			$payload->class = 'menu-top menu-icon-' . $payload->id;
 		}
 
-		parent::add( $payload );
+		parent::append( $payload );
 	}
 
 	function add_submenu( $parent_id, $payload ) {
 		if ( !isset( $this->submenus[ $parent_id ] ) )
 			$this->submenus[ $parent_id ] = new WP_Admin_Menu_Items;
 
-		$this->submenus[ $parent_id ]->add( $payload );
+		$this->submenus[ $parent_id ]->append( $payload );
 	}
 
 	function add_first_submenu( $parent_id, $name, $_index = 5 ) {

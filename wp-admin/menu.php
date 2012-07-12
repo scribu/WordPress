@@ -27,7 +27,7 @@ $submenu = array();
 
 $admin_menu = new WP_Admin_Menu;
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'name' => __( 'Dashboard' ),
 	'cap' => 'read',
 	'class' => 'menu-top menu-top-first menu-icon-dashboard',
@@ -59,13 +59,13 @@ if ( ! is_multisite() ) {
 	) );
 }
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'id' => 'separator1',
 	'class' => 'wp-menu-separator',
 	'_index' => 4
 ) );
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'name' => __( 'Posts' ),
 	'cap' => 'edit_posts',
 	'class' => 'open-if-no-js menu-top menu-icon-post',
@@ -86,7 +86,7 @@ $admin_menu->add( array(
 
 	$admin_menu->_add_tax_submenus( 'posts', 'post' );
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'name' => __( 'Media' ),
 	'cap' => 'upload_files',
 	'id' => 'media',
@@ -104,7 +104,7 @@ $admin_menu->add( array(
 		'_index' => 10
 	) );
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'name' => __( 'Links' ),
 	'cap' => 'manage_links',
 	'id' => 'links',
@@ -129,7 +129,7 @@ $admin_menu->add( array(
 		'_index' => 15
 	) );
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'name' => __( 'Pages' ),
 	'cap' => 'edit_pages',
 	'class' => 'menu-top menu-icon-page',
@@ -152,7 +152,7 @@ $admin_menu->add( array(
 
 $awaiting_mod = wp_count_comments()->moderated;
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'name' => sprintf( __('Comments %s'), "<span class='awaiting-mod count-$awaiting_mod'><span class='pending-count'>" . number_format_i18n($awaiting_mod) . "</span></span>" ),
 	'cap' => 'edit_posts',
 	'id' => 'comments',
@@ -186,7 +186,7 @@ foreach ( (array) get_post_types( array('show_ui' => true, '_builtin' => false, 
 		$ptype_menu_position++;
 /**/
 
-	$admin_menu->add( array(
+	$admin_menu->append( array(
 		'name' => esc_attr( $ptype_obj->labels->menu_name ),
 		'cap' => $ptype_obj->cap->edit_posts,
 		'class' => 'menu-top menu-icon-' . $ptype_class,
@@ -209,13 +209,13 @@ foreach ( (array) get_post_types( array('show_ui' => true, '_builtin' => false, 
 }
 unset($ptype, $ptype_obj, $ptype_class, $ptype_for_id, $ptype_menu_position, $admin_menu_icon);
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'id' => 'separator2',
 	'class' => 'wp-menu-separator',
 	'_index' => 59
 ) );
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'name' => __('Appearance'),
 	'cap' => array( 'switch_themes', 'edit_theme_options' ),
 	'url' => 'themes.php',
@@ -250,7 +250,7 @@ if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
 	$count = "<span class='update-plugins count-{$update_data['counts']['plugins']}'><span class='plugin-count'>" . number_format_i18n($update_data['counts']['plugins']) . "</span></span>";
 }
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'name' => sprintf( __('Plugins %s'), $count ),
 	'cap' => 'activate_plugins',
 	'url' => 'plugins.php',
@@ -280,7 +280,7 @@ $admin_menu->add( array(
 unset( $update_data, $count );
 
 if ( current_user_can('list_users') ) {
-	$admin_menu->add( array(
+	$admin_menu->append( array(
 		'name' => __('Users'),
 		'cap' => 'list_users',
 		'url' => 'users.php',
@@ -288,7 +288,7 @@ if ( current_user_can('list_users') ) {
 		'_index' => 70
 	) );
 } else {
-	$admin_menu->add( array(
+	$admin_menu->append( array(
 		'name' => __('Profile'),
 		'cap' => 'read',
 		'url' => 'profile.php',
@@ -328,7 +328,7 @@ if ( current_user_can('list_users') ) {
 	) );
 }
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'name' => __('Tools'),
 	'cap' => 'edit_posts',
 	'url' => 'tools.php',
@@ -370,7 +370,7 @@ $admin_menu->add( array(
 		) );
 	}
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'name' => __('Settings'),
 	'cap' => 'manage_options',
 	'url' => 'options-general.php',
@@ -424,7 +424,7 @@ $admin_menu->add( array(
 
 $_wp_last_utility_menu = 80; // The index of the last top-level menu in the utility menu group
 
-$admin_menu->add( array(
+$admin_menu->append( array(
 	'id' => 'separator-last',
 	'class' => 'wp-menu-separator',
 	'_index' => 99

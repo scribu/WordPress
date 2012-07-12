@@ -3,9 +3,32 @@
 /**
  * Generic container for easily manipulating an ordered list of items
  */
-class WP_Admin_Menu_Items {
+class WP_Admin_Menu_Item {
 
-	protected $items = array();
+	protected $children;
+
+	function __construct( $payload ) {
+
+		if ( !isset( $payload['id'] ) ) {
+			$payload['id'] = $payload['url'];
+		}
+
+		if ( isset( $payload['cap'] ) )
+			$payload['cap'] = $this->convert_caps( $payload['cap'] );
+
+		foreach ( $payload as $key => $value ) {
+			$this->$key = $value;
+		}
+
+		$this->children = array();
+	}
+
+	protected function prepare_item( $payload ) {
+		if ( is_a( $payload, __CLASS__ ) )
+			return $payload;
+
+		return new WP_Admin_Menu_Item( $payload );
+	}
 
 	// Return the first cap that the user has or last cap
 	protected function convert_caps( $caps ) {
@@ -20,10 +43,10 @@ class WP_Admin_Menu_Items {
 	function append( $payload ) {
 		$item = $this->prepare_item( $payload );
 
-		if ( isset( $this->items[ $item->id ] ) )
+		if ( isset( $this->children[ $item->id ] ) )
 			return false;
 
-		$this->items[ $item->id ] = $item;
+		$this->children[ $item->id ] = $item;
 
 		return true;
 	}
@@ -31,25 +54,12 @@ class WP_Admin_Menu_Items {
 	function replace( $payload ) {
 		$item = $this->prepare_item( $payload );
 
-		if ( ! isset( $this->items[ $item->id ] ) )
+		if ( ! isset( $this->children[ $item->id ] ) )
 			return false;
 
-		$this->items[ $item->id ] = $item;
+		$this->children[ $item->id ] = $item;
 
 		return true;
-	}
-
-	protected function prepare_item( $payload ) {
-		$item = (object) $payload;
-
-		if ( !isset( $item->id ) ) {
-			$item->id = $item->url;
-		}
-
-		if ( isset( $item->cap ) )
-			$item->cap = $this->convert_caps( $item->cap );
-
-		return $item;
 	}
 
 	function add_before( $ref_id, $payload ) {
@@ -58,7 +68,7 @@ class WP_Admin_Menu_Items {
 		$item = $this->prepare_item( $payload );
 
 		$found = false;
-		foreach ( $this->items as $key => $value ) {
+		foreach ( $this->children as $key => $value ) {
 			if ( $key == $ref_id ) {
 				$new_array[ $item->id ] = $item;
 				$found = true;
@@ -70,7 +80,7 @@ class WP_Admin_Menu_Items {
 		if ( !$found )
 			return false;
 
-		$this->items = $new_array;
+		$this->children = $new_array;
 
 		return true;
 	}
@@ -81,7 +91,7 @@ class WP_Admin_Menu_Items {
 		$item = $this->prepare_item( $payload );
 
 		$found = false;
-		foreach ( $this->items as $key => $value ) {
+		foreach ( $this->children as $key => $value ) {
 			$new_array[ $key ] = $value;
 
 			if ( $key == $ref_id ) {
@@ -93,62 +103,69 @@ class WP_Admin_Menu_Items {
 		if ( !$found )
 			return false;
 
-		$this->items = $new_array;
+		$this->children = $new_array;
 
 		return true;
 	}
 
 	function contains( $id ) {
-		return isset( $this->items[ $id ] );
+		return isset( $this->children[ $id ] );
 	}
 
 	function get( $id ) {
-		if ( !isset( $this->items[ $id ] ) )
+		if ( !isset( $this->children[ $id ] ) )
 			return false;
 
-		return $this->items[ $id ];
+		return $this->children[ $id ];
 	}
 
 	function get_all() {
-		return $this->items;
+		return $this->children;
 	}
 
 	function remove( $id ) {
-		if ( !isset( $this->items[ $id ] ) )
+		if ( !isset( $this->children[ $id ] ) )
 			return false;
 
-		unset( $this->items[ $id ] );
+		unset( $this->children[ $id ] );
 
 		return true;
 	}
 }
 
 
-class WP_Admin_Menu extends WP_Admin_Menu_Items {
+class WP_Admin_Menu extends WP_Admin_Menu_Item {
 
-	protected $submenus = array();
+	function __construct() {
+		$this->children = array();
+	}
 
 	function append( $payload ) {
-		$payload = (object) wp_parse_args( $payload, array(
+		$payload = wp_parse_args( $payload, array(
 			'icon' => 'div'
 		) );
 
-		if ( !isset( $payload->class ) ) {
-			$payload->class = 'menu-top menu-icon-' . $payload->id;
+		if ( !isset( $payload['class'] ) ) {
+			$payload['class'] = 'menu-top menu-icon-' . $payload['id'];
 		}
 
 		parent::append( $payload );
 	}
 
 	function add_submenu( $parent_id, $payload ) {
-		if ( !isset( $this->submenus[ $parent_id ] ) )
-			$this->submenus[ $parent_id ] = new WP_Admin_Menu_Items;
+		$parent = $this->get( $parent_id );
 
-		$this->submenus[ $parent_id ]->append( $payload );
+		if ( ! $parent )
+			return false;
+
+		return $parent->append( $payload );
 	}
 
 	function add_first_submenu( $parent_id, $title, $_index = 5 ) {
 		$parent = $this->get( $parent_id );
+
+		if ( ! $parent )
+			return false;
 
 		$this->add_submenu( $parent_id, array(
 			'title' => $title,

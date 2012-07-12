@@ -21,6 +21,10 @@
  * @var array
  */
 
+// TEMPORARY
+$menu = array();
+$submenu = array();
+
 $admin_menu = new WP_Admin_Menu;
 
 $admin_menu->add( array(

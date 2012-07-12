@@ -123,11 +123,11 @@ class WP_Admin_Menu extends WP_Admin_Menu_Items {
 		$this->submenus[ $parent_id ]->append( $payload );
 	}
 
-	function add_first_submenu( $parent_id, $name, $_index = 5 ) {
+	function add_first_submenu( $parent_id, $title, $_index = 5 ) {
 		$parent = $this->get( $parent_id );
 
 		$this->add_submenu( $parent_id, array(
-			'name' => $name,
+			'title' => $title,
 			'cap' => $parent->cap,
 			'url' => $parent->url,
 			'_index' => $_index
@@ -141,7 +141,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Items {
 				continue;
 
 			$this->add_submenu( $parent_id, array(
-				'name' => esc_attr( $tax->labels->menu_name ),
+				'title' => esc_attr( $tax->labels->menu_name ),
 				'cap' => $tax->cap->manage_terms,
 				'url' => "edit-tags.php?taxonomy=$tax->name&amp;post_type=$ptype",
 				'_index' => $i++

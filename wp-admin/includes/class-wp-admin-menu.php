@@ -67,11 +67,12 @@ class WP_Admin_Menu_Items {
 			$new_array[ $key ] = $value;
 		}
 
-		// TODO: just fail instead?
 		if ( !$found )
-			$new_array[ $item->id ] = $item;
+			return false;
 
 		$this->items = $new_array;
+
+		return true;
 	}
 
 	function add_after( $ref_id, $payload ) {
@@ -89,11 +90,12 @@ class WP_Admin_Menu_Items {
 			}
 		}
 
-		// TODO: just fail instead?
 		if ( !$found )
-			$new_array[ $item->id ] = $item;
+			return false;
 
 		$this->items = $new_array;
+
+		return true;
 	}
 
 	function contains( $id ) {

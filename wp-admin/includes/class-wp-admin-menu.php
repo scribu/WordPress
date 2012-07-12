@@ -103,6 +103,9 @@ class WP_Admin_Menu_Items {
 	}
 
 	function get( $id ) {
+		if ( !isset( $this->items[ $id ] ) )
+			return false;
+
 		return $this->items[ $id ];
 	}
 
@@ -111,7 +114,12 @@ class WP_Admin_Menu_Items {
 	}
 
 	function remove( $id ) {
+		if ( !isset( $this->items[ $id ] ) )
+			return false;
+
 		unset( $this->items[ $id ] );
+
+		return true;
 	}
 }
 

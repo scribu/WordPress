@@ -115,7 +115,7 @@ class WP_Admin_Menu_Item {
 		return $this->children[ $id ];
 	}
 
-	function get_all() {
+	function get_children() {
 		return $this->children;
 	}
 

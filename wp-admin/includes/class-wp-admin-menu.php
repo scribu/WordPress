@@ -52,22 +52,20 @@ class WP_Admin_Menu_Item {
 	}
 
 	function insert_before( $ref_id, $payload ) {
+		if ( !isset( $this->children[ $ref_id ] ) )
+			return false;
+
 		$new_array = array();
 
 		$item = $this->prepare_item( $payload );
 
-		$found = false;
 		foreach ( $this->children as $key => $value ) {
 			if ( $key == $ref_id ) {
 				$new_array[ $item->id ] = $item;
-				$found = true;
 			}
 
 			$new_array[ $key ] = $value;
 		}
-
-		if ( !$found )
-			return false;
 
 		$this->children = $new_array;
 
@@ -75,22 +73,20 @@ class WP_Admin_Menu_Item {
 	}
 
 	function insert_after( $ref_id, $payload ) {
+		if ( !isset( $this->children[ $ref_id ] ) )
+			return false;
+
 		$new_array = array();
 
 		$item = $this->prepare_item( $payload );
 
-		$found = false;
 		foreach ( $this->children as $key => $value ) {
 			$new_array[ $key ] = $value;
 
 			if ( $key == $ref_id ) {
 				$new_array[ $item->id ] = $item;
-				$found = true;
 			}
 		}
-
-		if ( !$found )
-			return false;
 
 		$this->children = $new_array;
 

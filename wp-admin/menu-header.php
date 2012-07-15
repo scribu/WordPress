@@ -72,6 +72,8 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 		if ( ! empty( $item->class ) )
 			$class[] = $item->class;
 
+		$class[] = 'menu-top';
+
 		$class = $class ? ' class="' . join( ' ', $class ) . '"' : '';
 		$id = ! empty( $item->id ) ? ' id="' . preg_replace( '|[^a-zA-Z0-9_:.]|', '-', $item->id ) . '"' : '';
 		$img = '';

@@ -21,16 +21,11 @@
  * @var array
  */
 
-// TEMPORARY
-$menu = array();
-$submenu = array();
-
 $admin_menu = new WP_Admin_Menu;
 
 $admin_menu->append( array(
 	'title' => __( 'Dashboard' ),
 	'cap' => 'read',
-	'class' => 'menu-top menu-top-first menu-icon-dashboard',
 	'id' => 'dashboard',
 	'url' => 'index.php',
 	'_index' => 2
@@ -68,7 +63,7 @@ $admin_menu->append( array(
 $admin_menu->append( array(
 	'title' => __( 'Posts' ),
 	'cap' => 'edit_posts',
-	'class' => 'open-if-no-js menu-top menu-icon-post',
+	'class' => 'open-if-no-js menu-icon-post',
 	'id' => 'posts',
 	'url' => 'edit.php',
 	'_index' => 5
@@ -132,7 +127,7 @@ $admin_menu->append( array(
 $admin_menu->append( array(
 	'title' => __( 'Pages' ),
 	'cap' => 'edit_pages',
-	'class' => 'menu-top menu-icon-page',
+	'class' => 'menu-icon-page',
 	'id' => 'pages',
 	'url' => 'edit.php?post_type=page',
 	'_index' => 20
@@ -178,7 +173,7 @@ foreach ( (array) get_post_types( array('show_ui' => true, '_builtin' => false, 
 	$admin_menu->append( array(
 		'title' => esc_attr( $ptype_obj->labels->menu_name ),
 		'cap' => $ptype_obj->cap->edit_posts,
-		'class' => 'menu-top menu-icon-' . $ptype_class,
+		'class' => 'menu-icon-' . $ptype_class,
 		'id' => 'posts-' . $ptype_for_id,
 		'url' => "edit.php?post_type=$ptype",
 		'icon' => $admin_menu_icon,

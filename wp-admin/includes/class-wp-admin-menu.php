@@ -153,7 +153,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 		) );
 
 		if ( !isset( $payload['class'] ) ) {
-			$payload['class'] = 'menu-top menu-icon-' . $payload['id'];
+			$payload['class'] = 'menu-icon-' . $payload['id'];
 		}
 
 		parent::append( $payload );
@@ -201,6 +201,15 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 				'url' => $url,
 				'_index' => $i++
 			) );
+		}
+	}
+
+	function _loop( $callback ) {
+		foreach ( $this->get_children() as $item ) {
+			if ( !isset( $item->url ) )
+				continue;
+
+			call_user_func( $callback, $item, $this );
 		}
 	}
 }

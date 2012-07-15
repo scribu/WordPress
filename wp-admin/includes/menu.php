@@ -14,12 +14,20 @@ elseif ( is_user_admin() )
 else
 	do_action('_admin_menu');
 
+$_wp_submenu_nopriv = array();
+$_wp_menu_nopriv = array();
+
+$admin_menu->_loop( '_generate_admin_page_hooks' );
+$admin_menu->_loop( '_check_admin_submenu_privs' );
+
 // Create list of page plugin hook names.
-foreach ($menu as $menu_page) {
-	if ( false !== $pos = strpos($menu_page[2], '?') ) {
+function _generate_admin_page_hooks( $menu_item, $admin_menu ) {
+	global $admin_page_hooks;
+
+	if ( false !== $pos = strpos($menu_item->url, '?') ) {
 		// Handle post_type=post|page|foo pages.
-		$hook_name = substr($menu_page[2], 0, $pos);
-		$hook_args = substr($menu_page[2], $pos + 1);
+		$hook_name = substr($menu_item->url, 0, $pos);
+		$hook_args = substr($menu_item->url, $pos + 1);
 		wp_parse_str($hook_args, $hook_args);
 		// Set the hook name to be the post type.
 		if ( isset($hook_args['post_type']) )
@@ -28,7 +36,7 @@ foreach ($menu as $menu_page) {
 			$hook_name = basename($hook_name, '.php');
 		unset($hook_args);
 	} else {
-		$hook_name = basename($menu_page[2], '.php');
+		$hook_name = basename($menu_item->url, '.php');
 	}
 	$hook_name = sanitize_title($hook_name);
 
@@ -37,57 +45,45 @@ foreach ($menu as $menu_page) {
 	elseif ( !$hook_name )
 		continue;
 
-	$admin_page_hooks[$menu_page[2]] = $hook_name;
+	$admin_page_hooks[$menu_item->url] = $hook_name;
 }
-unset($menu_page, $compat);
 
-$_wp_submenu_nopriv = array();
-$_wp_menu_nopriv = array();
-// Loop over submenus and remove pages for which the user does not have privs.
-foreach ( array( 'submenu' ) as $sub_loop ) {
-	foreach ($$sub_loop as $parent => $sub) {
-		foreach ($sub as $index => $data) {
-			if ( ! current_user_can($data[1]) ) {
-				unset(${$sub_loop}[$parent][$index]);
-				$_wp_submenu_nopriv[$parent][$data[2]] = true;
-			}
+function _check_admin_submenu_privs( $menu_item, $admin_menu ) {
+	global $_wp_submenu_nopriv;
+
+	// Loop over submenus and remove items for which the user does not have privs.
+	foreach ( $menu_item->get_children() as $submenu ) {
+		if ( !current_user_can( $submenu->cap ) ) {
+			$menu_item->remove( $submenu->id );
+			$_wp_submenu_nopriv[$menu_item->url][$submenu->url] = true;
 		}
-		unset($index, $data);
-
-		if ( empty(${$sub_loop}[$parent]) )
-			unset(${$sub_loop}[$parent]);
 	}
-	unset($sub, $parent);
-}
-unset($sub_loop);
 
-// Loop over the top-level menu.
-// Menus for which the original parent is not accessible due to lack of privs will have the next
-// submenu in line be assigned as the new menu parent.
-foreach ( $menu as $id => $data ) {
-	if ( empty($submenu[$data[2]]) )
-		continue;
-	$subs = $submenu[$data[2]];
-	$first_sub = array_shift($subs);
-	$old_parent = $data[2];
-	$new_parent = $first_sub[2];
-	// If the first submenu is not the same as the assigned parent,
-	// make the first submenu the new parent.
+	// Menus for which the original parent is not accessible due to lack of privs
+	// will have the next submenu in line be assigned as the new menu parent.
+	$subs = $menu_item->get_children();
+
+	if ( empty( $subs ) )
+		return;
+
+	$first_sub = array_shift( $subs );
+
+	$old_parent = $menu_item->url;
+	$new_parent = $first_sub->url;
+
 	if ( $new_parent != $old_parent ) {
-		$_wp_real_parent_file[$old_parent] = $new_parent;
-		$menu[$id][2] = $new_parent;
-
-		foreach ($submenu[$old_parent] as $index => $data) {
-			$submenu[$new_parent][$index] = $submenu[$old_parent][$index];
-			unset($submenu[$old_parent][$index]);
+		foreach ( $subs as $sub ) {
+			$first_sub->append( $sub );
 		}
-		unset($submenu[$old_parent], $index);
+
+		$admin_menu->replace( $menu_item->id, $first_sub );
+
+		$_wp_real_parent_file[$old_parent] = $new_parent;
 
 		if ( isset($_wp_submenu_nopriv[$old_parent]) )
 			$_wp_submenu_nopriv[$new_parent] = $_wp_submenu_nopriv[$old_parent];
 	}
 }
-unset($id, $data, $subs, $first_sub, $old_parent, $new_parent);
 
 if ( is_network_admin() )
 	do_action('network_admin_menu', '');
@@ -96,92 +92,96 @@ elseif ( is_user_admin() )
 else
 	do_action('admin_menu', '');
 
-// Remove menus that have no accessible submenus and require privs that the user does not have.
-// Run re-parent loop again.
-foreach ( $menu as $id => $data ) {
-	if ( ! current_user_can($data[1]) )
-		$_wp_menu_nopriv[$data[2]] = true;
+$admin_menu->_loop( '_check_admin_menu_privs' );
+
+// Remove menus that have no accessible submenus
+// and require privs that the user does not have.
+function _check_admin_menu_privs( $menu_item, $admin_menu ) {
+	global $_wp_menu_nopriv;
+
+	if ( ! current_user_can( $menu_item->cap ) )
+		$_wp_menu_nopriv[$menu_item->url] = true;
+
+	$subs = $menu_item->get_children();
 
 	// If there is only one submenu and it is has same destination as the parent,
 	// remove the submenu.
-	if ( ! empty( $submenu[$data[2]] ) && 1 == count ( $submenu[$data[2]] ) ) {
-		$subs = $submenu[$data[2]];
-		$first_sub = array_shift($subs);
-		if ( $data[2] == $first_sub[2] )
-			unset( $submenu[$data[2]] );
+	if ( ! empty( $subs ) && 1 == count( $subs ) ) {
+		$first_sub = array_shift( $subs );
+		if ( $menu_item->url == $first_sub->url )
+			$menu_item->remove( $first_sub->id );
 	}
 
 	// If submenu is empty...
-	if ( empty($submenu[$data[2]]) ) {
+	if ( !$menu_item->has_children() ) {
 		// And user doesn't have privs, remove menu.
-		if ( isset( $_wp_menu_nopriv[$data[2]] ) ) {
-			unset($menu[$id]);
+		if ( isset( $_wp_menu_nopriv[$menu_item->url] ) ) {
+			$admin_menu->remove( $menu_item->id );
 		}
 	}
 }
-unset($id, $data, $subs, $first_sub);
 
 // Remove any duplicated separators
 $separator_found = false;
-foreach ( $menu as $id => $data ) {
-	if ( 0 == strcmp('wp-menu-separator', $data[4] ) ) {
-		if (false == $separator_found) {
+foreach ( $admin_menu->get_children() as $menu_item ) {
+	if ( 'wp-menu-separator' == $menu_item->class ) {
+		if ( !$separator_found ) {
 			$separator_found = true;
 		} else {
-			unset($menu[$id]);
+			$admin_menu->remove( $menu_item->id );
 			$separator_found = false;
 		}
 	} else {
 		$separator_found = false;
 	}
 }
-unset($id, $data);
+unset($separator_found, $menu_item);
 
 function add_cssclass($add, $class) {
 	$class = empty($class) ? $add : $class .= ' ' . $add;
 	return $class;
 }
 
-function add_menu_classes($menu) {
+function _add_admin_menu_classes( $admin_menu ) {
+	$items = array_values( $admin_menu->get_children() );
 
-	$first = $lastorder = false;
-	$i = 0;
-	$mc = count($menu);
-	foreach ( $menu as $order => $top ) {
-		$i++;
+	// Remove the last menu item if it is a separator.
+	$last = end( $items );
+	if ( 'wp-menu-separator' == $last->class ) {
+		$admin_menu->remove( $last->id );
+		array_pop( $items );
+	}
 
-		if ( 0 == $order ) { // dashboard is always shown/single
-			$menu[0][4] = add_cssclass('menu-top-first', $top[4]);
-			$lastorder = 0;
+	$first = false;
+
+	foreach ( $items as $i => $menu_item ) {
+		if ( 'dashboard' == $menu_item->id ) { // dashboard is always shown/single
+			$menu_item->class = add_cssclass( 'menu-top-first', $menu_item->class );
 			continue;
 		}
 
-		if ( 0 === strpos($top[2], 'separator') ) { // if separator
+		if ( 'wp-menu-separator' == $menu_item->class ) {
 			$first = true;
-			$c = $menu[$lastorder][4];
-			$menu[$lastorder][4] = add_cssclass('menu-top-last', $c);
+			$previous = $items[$i-1];
+			$previous->class = add_cssclass( 'menu-top-last', $previous->class );
 			continue;
 		}
 
 		if ( $first ) {
-			$c = $menu[$order][4];
-			$menu[$order][4] = add_cssclass('menu-top-first', $c);
+			$menu_item->class = add_cssclass( 'menu-top-first', $menu_item->class );
 			$first = false;
 		}
-
-		if ( $mc == $i ) { // last item
-			$c = $menu[$order][4];
-			$menu[$order][4] = add_cssclass('menu-top-last', $c);
-		}
-
-		$lastorder = $order;
 	}
 
-	return apply_filters( 'add_menu_classes', $menu );
+	$last = end( $items );
+
+	$last->class = add_cssclass( 'menu-top-last', $last->class );
 }
 
+// TODO
 uksort($menu, "strnatcasecmp"); // make it all pretty
 
+// TODO
 if ( apply_filters('custom_menu_order', false) ) {
 	$menu_order = array();
 	foreach ( $menu as $menu_item ) {
@@ -214,16 +214,10 @@ if ( apply_filters('custom_menu_order', false) ) {
 	unset($menu_order, $default_menu_order);
 }
 
-// Remove the last menu item if it is a separator.
-$last_menu_key = array_keys( $menu );
-$last_menu_key = array_pop( $last_menu_key );
-if ( !empty( $menu ) && 'wp-menu-separator' == $menu[ $last_menu_key ][ 4 ] )
-	unset( $menu[ $last_menu_key ] );
-unset( $last_menu_key );
-
 if ( !user_can_access_admin_page() ) {
 	do_action('admin_page_access_denied');
 	wp_die( __('You do not have sufficient permissions to access this page.') );
 }
 
-$menu = add_menu_classes($menu);
+_add_admin_menu_classes( $admin_menu );
+

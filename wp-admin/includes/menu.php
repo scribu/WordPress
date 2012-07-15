@@ -179,9 +179,6 @@ function _add_admin_menu_classes( $admin_menu ) {
 }
 
 // TODO
-uksort($menu, "strnatcasecmp"); // make it all pretty
-
-// TODO
 if ( apply_filters('custom_menu_order', false) ) {
 	$menu_order = array();
 	foreach ( $menu as $menu_item ) {

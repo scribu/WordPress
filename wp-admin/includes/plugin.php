@@ -1004,8 +1004,9 @@ function add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, 
 	$menu_slug = plugin_basename( $menu_slug );
 	$parent_slug = plugin_basename( $parent_slug );
 
-	if ( isset( $_wp_real_parent_file[$parent_slug] ) )
+	if ( isset( $_wp_real_parent_file[$parent_slug] ) ) {
 		$parent_slug = $_wp_real_parent_file[$parent_slug];
+	}
 
 	if ( !current_user_can( $capability ) ) {
 		$_wp_submenu_nopriv[$parent_slug][$menu_slug] = true;
@@ -1013,8 +1014,9 @@ function add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, 
 	}
 
 	$parent_menu = $admin_menu->get( $parent_slug, 'url' );
-	if ( !$parent_menu )
+	if ( !$parent_menu ) {
 		return false;
+	}
 
 	// If the parent doesn't already have a submenu, add a link to the parent
 	// as the first item in the submenu. If the submenu file is the same as the
@@ -1032,13 +1034,18 @@ function add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, 
 	) );
 
 	$hookname = get_plugin_page_hookname( $menu_slug, $parent_slug);
+
 	if (!empty ( $function ) && !empty ( $hookname ))
 		add_action( $hookname, $function );
 
 	$_registered_pages[$hookname] = true;
+
 	// backwards-compatibility for plugins using add_management page. See wp-admin/admin.php for redirect from edit.php to tools.php
-	if ( 'tools.php' == $parent_slug )
-		$_registered_pages[get_plugin_page_hookname( $menu_slug, 'edit.php')] = true;
+	if ( 'tools.php' == $parent_slug ) {
+		$compat_hookname = get_plugin_page_hookname( $menu_slug, 'edit.php' );
+
+		$_registered_pages[ $compat_hookname ] = true;
+	}
 
 	// No parent as top level
 	$_parent_pages[$menu_slug] = $parent_slug;
@@ -1368,8 +1375,7 @@ function menu_page_url($menu_slug, $echo = true) {
 
 function get_admin_page_parent( $parent = '' ) {
 	global $parent_file;
-	global $menu;
-	global $submenu;
+	global $admin_menu;
 	global $pagenow;
 	global $typenow;
 	global $plugin_page;
@@ -1383,24 +1389,22 @@ function get_admin_page_parent( $parent = '' ) {
 		return $parent;
 	}
 
-	/*
 	if ( !empty ( $parent_file ) ) {
 		if ( isset( $_wp_real_parent_file[$parent_file] ) )
 			$parent_file = $_wp_real_parent_file[$parent_file];
 
 		return $parent_file;
 	}
-	*/
 
 	if ( $pagenow == 'admin.php' && isset( $plugin_page ) ) {
-		foreach ( (array)$menu as $parent_menu ) {
-			if ( $parent_menu[2] == $plugin_page ) {
-				$parent_file = $plugin_page;
-				if ( isset( $_wp_real_parent_file[$parent_file] ) )
-					$parent_file = $_wp_real_parent_file[$parent_file];
-				return $parent_file;
-			}
+		$current_item = $admin_menu->get( $plugin_page, 'url' );
+		if ( $current_item ) {
+			$parent_file = $plugin_page;
+			if ( isset( $_wp_real_parent_file[$parent_file] ) )
+				$parent_file = $_wp_real_parent_file[$parent_file];
+			return $parent_file;
 		}
+
 		if ( isset( $_wp_menu_nopriv[$plugin_page] ) ) {
 			$parent_file = $plugin_page;
 			if ( isset( $_wp_real_parent_file[$parent_file] ) )
@@ -1416,21 +1420,29 @@ function get_admin_page_parent( $parent = '' ) {
 		return $parent_file;
 	}
 
-	foreach (array_keys( (array)$submenu ) as $parent) {
-		foreach ( $submenu[$parent] as $submenu_array ) {
-			if ( isset( $_wp_real_parent_file[$parent] ) )
-				$parent = $_wp_real_parent_file[$parent];
-			if ( !empty($typenow) && ($submenu_array[2] == "$pagenow?post_type=$typenow") ) {
+	foreach ( $admin_menu->get_children() as $menu_item ) {
+		if ( !isset( $menu_item->url ) )
+			continue;
+
+		$parent = $menu_item->url;
+		if ( isset( $_wp_real_parent_file[$parent] ) )
+			$parent = $_wp_real_parent_file[$parent];
+
+		foreach ( $menu_item->get_children() as $submenu ) {
+			if ( !empty($typenow) && $submenu->url == "$pagenow?post_type=$typenow" ) {
 				$parent_file = $parent;
 				return $parent;
-			} elseif ( $submenu_array[2] == $pagenow && empty($typenow) && ( empty($parent_file) || false === strpos($parent_file, '?') ) ) {
+			}
+
+			if ( $submenu->url == $pagenow && empty($typenow) && ( empty($parent_file) || false === strpos($parent_file, '?') ) ) {
 				$parent_file = $parent;
 				return $parent;
-			} else
-				if ( isset( $plugin_page ) && ($plugin_page == $submenu_array[2] ) ) {
-					$parent_file = $parent;
-					return $parent;
-				}
+			}
+
+			if ( isset( $plugin_page ) && $plugin_page == $submenu->url ) {
+				$parent_file = $parent;
+				return $parent;
+			}
 		}
 	}
 
@@ -1547,8 +1559,7 @@ function get_plugin_page_hookname( $plugin_page, $parent_page ) {
 
 function user_can_access_admin_page() {
 	global $pagenow;
-	global $menu;
-	global $submenu;
+	global $admin_menu;
 	global $_wp_menu_nopriv;
 	global $_wp_submenu_nopriv;
 	global $plugin_page;
@@ -1590,32 +1601,19 @@ function user_can_access_admin_page() {
 	if ( isset( $plugin_page ) && ( $plugin_page == $parent ) && isset( $_wp_menu_nopriv[$plugin_page] ) )
 		return false;
 
-	if ( isset( $submenu[$parent] ) ) {
-		foreach ( $submenu[$parent] as $submenu_array ) {
-			if ( isset( $plugin_page ) && ( $submenu_array[2] == $plugin_page ) ) {
-				if ( current_user_can( $submenu_array[1] ))
-					return true;
-				else
-					return false;
-			} else if ( $submenu_array[2] == $pagenow ) {
-				if ( current_user_can( $submenu_array[1] ))
-					return true;
-				else
-					return false;
-			}
+	$curret_item = $admin_menu->get( $parent, 'url' );
+	if ( !$curret_item )
+		return true;
+
+	foreach ( $curret_item->get_children() as $submenu ) {
+		if ( isset( $plugin_page ) && $submenu->url == $plugin_page ) {
+			return current_user_can( $submenu->cap );
+		} else if ( $submenu->url == $pagenow ) {
+			return current_user_can( $submenu->cap );
 		}
 	}
 
-	foreach ( $menu as $menu_array ) {
-		if ( $menu_array[2] == $parent) {
-			if ( current_user_can( $menu_array[1] ))
-				return true;
-			else
-				return false;
-		}
-	}
-
-	return true;
+	return current_user_can( $curret_item->cap );
 }
 
 /* Whitelist functions */

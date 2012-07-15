@@ -40,7 +40,7 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 	foreach ( $menu->get_children() as $item ) {
 
 		if ( 'wp-menu-separator' == $item->class ) {
-			echo "\n\t<li class='wp-menu-separator' id='$item->id'>";
+			echo "\n\t<li class='wp-menu-separator' id='menu-$item->id'>";
 			echo '<div class="separator"></div>';
 			echo "</li>";
 			continue;
@@ -75,7 +75,7 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 		$class[] = 'menu-top';
 
 		$class = $class ? ' class="' . join( ' ', $class ) . '"' : '';
-		$id = ! empty( $item->id ) ? ' id="' . preg_replace( '|[^a-zA-Z0-9_:.]|', '-', $item->id ) . '"' : '';
+		$id = ! empty( $item->id ) ? ' id="menu-' . preg_replace( '|[^a-zA-Z0-9_:.]|', '-', $item->id ) . '"' : '';
 		$img = '';
 		if ( ! empty( $item->icon ) )
 			$img = ( 'div' === $item->icon ) ? '<br />' : '<img src="' . $item->icon . '" alt="" />';

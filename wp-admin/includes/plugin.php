@@ -885,38 +885,49 @@ function uninstall_plugin($plugin) {
  * @param string $menu_slug The slug name to refer to this menu by (should be unique for this menu)
  * @param callback $function The function to be called to output the content for this page.
  * @param string $icon_url The url to the icon to be used for this menu
- * @param int $position The position in the menu order this one should appear
+ * @param string $before The menu item before which this one should appear
  *
  * @return string The resulting page's hook_suffix
  */
-function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $icon_url = '', $position = null ) {
-	global $menu, $admin_page_hooks, $_registered_pages, $_parent_pages;
+function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $icon_url = '', $before = null ) {
+	global $admin_menu, $admin_page_hooks, $_registered_pages, $_parent_pages;
+
+	if ( is_numeric( $before ) ) {
+		_deprecated_argument( __FUNCTION__, '3.5', __( 'Numeric menu positions are deprecated. Use menu ids instead.' ) );
+		$before = null;
+	}
 
 	$menu_slug = plugin_basename( $menu_slug );
-
-	$admin_page_hooks[$menu_slug] = sanitize_title( $menu_title );
 
 	$hookname = get_plugin_page_hookname( $menu_slug, '' );
 
 	if ( !empty( $function ) && !empty( $hookname ) && current_user_can( $capability ) )
 		add_action( $hookname, $function );
 
-	if ( empty($icon_url) )
-		$icon_url = esc_url( admin_url( 'images/generic.png' ) );
-	elseif ( is_ssl() && 0 === strpos($icon_url, 'http://') )
-		$icon_url = 'https://' . substr($icon_url, 7);
-
-	$new_menu = array( $menu_title, $capability, $menu_slug, $page_title, 'menu-top ' . $hookname, $hookname, $icon_url );
-
-	if ( null === $position )
-		$menu[] = $new_menu;
-	else
-		$menu[$position] = $new_menu;
+	$admin_page_hooks[$menu_slug] = sanitize_title( $menu_title );
 
 	$_registered_pages[$hookname] = true;
 
 	// No parent as top level
 	$_parent_pages[$menu_slug] = false;
+
+	if ( empty($icon_url) )
+		$icon_url = esc_url( admin_url( 'images/generic.png' ) );
+	elseif ( is_ssl() && 0 === strpos($icon_url, 'http://') )
+		$icon_url = 'https://' . substr($icon_url, 7);
+
+	$menu_args = array(
+		'title' => $menu_title,
+		'cap' => $capability,
+		'url' => $menu_slug,
+		'class' => 'menu-top ' . $hookname,
+		'icon' => $icon_url
+	);
+
+	if ( null === $before )
+		$admin_menu->append( $args );
+	else
+		$admin_menu->insert_before( $before, $args );
 
 	return $hookname;
 }
@@ -940,11 +951,7 @@ function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $func
  * @return string The resulting page's hook_suffix
  */
 function add_object_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $icon_url = '') {
-	global $_wp_last_object_menu;
-
-	$_wp_last_object_menu++;
-
-	return add_menu_page($page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $_wp_last_object_menu);
+	return add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, 'separator2' );
 }
 
 /**
@@ -966,11 +973,7 @@ function add_object_page( $page_title, $menu_title, $capability, $menu_slug, $fu
  * @return string The resulting page's hook_suffix
  */
 function add_utility_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $icon_url = '') {
-	global $_wp_last_utility_menu;
-
-	$_wp_last_utility_menu++;
-
-	return add_menu_page($page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $_wp_last_utility_menu);
+	return add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, 'separator-last' );
 }
 
 /**

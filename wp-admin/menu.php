@@ -164,8 +164,6 @@ $admin_menu->append( array(
 
 unset($awaiting_mod);
 
-$_wp_last_object_menu = 25; // The index of the last top-level menu in the object menu group
-
 foreach ( (array) get_post_types( array('show_ui' => true, '_builtin' => false, 'show_in_menu' => true ) ) as $ptype ) {
 	$ptype_obj = get_post_type_object( $ptype );
 	$ptype_for_id = sanitize_html_class( $ptype );
@@ -412,8 +410,6 @@ $admin_menu->append( array(
 		'url' => 'options-permalink.php',
 		'_index' => 40
 	) );
-
-$_wp_last_utility_menu = 80; // The index of the last top-level menu in the utility menu group
 
 $admin_menu->append( array(
 	'id' => 'separator-last',

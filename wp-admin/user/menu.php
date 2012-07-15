@@ -7,16 +7,37 @@
  * @since 3.1.0
  */
 
-$menu[2] = array(__('Dashboard'), 'exist', 'index.php', '', 'menu-top menu-top-first menu-icon-dashboard', 'menu-dashboard', 'div');
+$admin_menu = new WP_Admin_Menu;
 
-$menu[4] = array( '', 'exist', 'separator1', '', 'wp-menu-separator' );
+$admin_menu->append( array(
+	'title' => __( 'Dashboard' ),
+	'cap' => 'exist',
+	'id' => 'dashboard',
+	'url' => 'index.php',
+	'_index' => 2
+) );
 
-$menu[70] = array( __('Profile'), 'exist', 'profile.php', '', 'menu-top menu-icon-users', 'menu-users', 'div' );
+$admin_menu->append( array(
+	'id' => 'separator1',
+	'class' => 'wp-menu-separator',
+	'_index' => 4
+) );
 
-$menu[99] = array( '', 'exist', 'separator-last', '', 'wp-menu-separator-last' );
+$admin_menu->append( array(
+	'title' => __( 'Profile' ),
+	'cap' => 'exist',
+	'id' => 'users',
+	'url' => 'profile.php',
+	'_index' => 70
+) );
+
+$admin_menu->append( array(
+	'id' => 'separator-last',
+	'class' => 'wp-menu-separator',
+	'_index' => 99
+) );
 
 $_wp_real_parent_file['users.php'] = 'profile.php';
 $compat = array();
-$submenu = array();
 
 require_once(ABSPATH . 'wp-admin/includes/menu.php');

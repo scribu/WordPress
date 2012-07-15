@@ -178,39 +178,6 @@ function _add_admin_menu_classes( $admin_menu ) {
 	$last->class = add_cssclass( 'menu-top-last', $last->class );
 }
 
-// TODO
-if ( apply_filters('custom_menu_order', false) ) {
-	$menu_order = array();
-	foreach ( $menu as $menu_item ) {
-		$menu_order[] = $menu_item[2];
-	}
-	unset($menu_item);
-	$default_menu_order = $menu_order;
-	$menu_order = apply_filters('menu_order', $menu_order);
-	$menu_order = array_flip($menu_order);
-	$default_menu_order = array_flip($default_menu_order);
-
-	function sort_menu($a, $b) {
-		global $menu_order, $default_menu_order;
-		$a = $a[2];
-		$b = $b[2];
-		if ( isset($menu_order[$a]) && !isset($menu_order[$b]) ) {
-			return -1;
-		} elseif ( !isset($menu_order[$a]) && isset($menu_order[$b]) ) {
-			return 1;
-		} elseif ( isset($menu_order[$a]) && isset($menu_order[$b]) ) {
-			if ( $menu_order[$a] == $menu_order[$b] )
-				return 0;
-			return ($menu_order[$a] < $menu_order[$b]) ? -1 : 1;
-		} else {
-			return ($default_menu_order[$a] <= $default_menu_order[$b]) ? -1 : 1;
-		}
-	}
-
-	usort($menu, 'sort_menu');
-	unset($menu_order, $default_menu_order);
-}
-
 if ( !user_can_access_admin_page() ) {
 	do_action('admin_page_access_denied');
 	wp_die( __('You do not have sufficient permissions to access this page.') );

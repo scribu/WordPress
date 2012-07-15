@@ -1446,8 +1446,7 @@ function get_admin_page_parent( $parent = '' ) {
 
 function get_admin_page_title() {
 	global $title;
-	global $menu;
-	global $submenu;
+	global $admin_menu;
 	global $pagenow;
 	global $plugin_page;
 	global $typenow;
@@ -1457,64 +1456,59 @@ function get_admin_page_title() {
 
 	$hook = get_plugin_page_hook( $plugin_page, $pagenow );
 
-	$parent = $parent1 = get_admin_page_parent();
+	$parent = get_admin_page_parent();
 
-	if ( empty ( $parent) ) {
-		foreach ( (array)$menu as $menu_array ) {
-			if ( isset( $menu_array[3] ) ) {
-				if ( $menu_array[2] == $pagenow ) {
-					$title = $menu_array[3];
-					return $menu_array[3];
-				} else
-					if ( isset( $plugin_page ) && ($plugin_page == $menu_array[2] ) && ($hook == $menu_array[3] ) ) {
-						$title = $menu_array[3];
-						return $menu_array[3];
-					}
-			} else {
-				$title = $menu_array[0];
-				return $title;
+	if ( empty($parent) ) {
+		if ( isset( $menu_item->page_title ) ) {
+			if ( $menu_item->url == $pagenow ) {
+				$title = $menu_item->page_title;
+				return $menu_item->page_title;
+			} elseif ( isset( $plugin_page ) && $plugin_page == $menu_item->url && $hook == $menu_item->page_title ) {
+				$title = $menu_item->page_title;
+				return $menu_item->page_title;
 			}
+		} else {
+			$title = $menu_item->title;
+			return $title;
 		}
-	} else {
-		foreach ( array_keys( $submenu ) as $parent ) {
-			foreach ( $submenu[$parent] as $submenu_array ) {
-				if ( isset( $plugin_page ) &&
-					( $plugin_page == $submenu_array[2] ) &&
-					(
-						( $parent == $pagenow ) ||
-						( $parent == $plugin_page ) ||
-						( $plugin_page == $hook ) ||
-						( $pagenow == 'admin.php' && $parent1 != $submenu_array[2] ) ||
-						( !empty($typenow) && $parent == $pagenow . '?post_type=' . $typenow)
-					)
-					) {
-						$title = $submenu_array[3];
-						return $submenu_array[3];
-					}
+	}
 
-				if ( $submenu_array[2] != $pagenow || isset( $_GET['page'] ) ) // not the current page
-					continue;
+	$menu_item = $admin_menu->get( $parent, 'url' );
 
-				if ( isset( $submenu_array[3] ) ) {
-					$title = $submenu_array[3];
-					return $submenu_array[3];
-				} else {
-					$title = $submenu_array[0];
-					return $title;
-				}
-			}
+	foreach ( $menu_item->get_children() as $submenu ) {
+		if ( isset( $plugin_page ) &&
+			$plugin_page == $submenu->url && (
+				( $parent == $pagenow ) ||
+				( $parent == $plugin_page ) ||
+				( $plugin_page == $hook ) ||
+				( $pagenow == 'admin.php' && $parent != $submenu->url ) ||
+				( !empty($typenow) && $parent == $pagenow . '?post_type=' . $typenow)
+			)
+		) {
+			$title = $submenu->page_title;
+			return $submenu->page_title;
 		}
-		if ( empty ( $title ) ) {
-			foreach ( $menu as $menu_array ) {
-				if ( isset( $plugin_page ) &&
-					( $plugin_page == $menu_array[2] ) &&
-					( $pagenow == 'admin.php' ) &&
-					( $parent1 == $menu_array[2] ) )
-					{
-						$title = $menu_array[3];
-						return $menu_array[3];
-					}
-			}
+
+		if ( $submenu->url != $pagenow || isset( $_GET['page'] ) ) // not the current page
+			continue;
+
+		if ( isset( $submenu->page_title ) ) {
+			$title = $submenu->page_title;
+			return $submenu->page_title;
+		} else {
+			$title = $submenu->title;
+			return $title;
+		}
+	}
+
+	if ( empty ( $title ) ) {
+		if ( isset( $plugin_page ) &&
+			( $plugin_page == $menu_item->url ) &&
+			( $pagenow == 'admin.php' ) &&
+			( $parent == $menu_item->url ) )
+		{
+			$title = $menu_item->page_title;
+			return $menu_item->page_title;
 		}
 	}
 

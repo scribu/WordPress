@@ -992,18 +992,17 @@ function add_utility_page( $page_title, $menu_title, $capability, $menu_slug, $f
  * @param string $menu_slug The slug name to refer to this menu by (should be unique for this menu)
  * @param callback $function The function to be called to output the content for this page.
  *
- * @return string|bool The resulting page's hook_suffix, or false if the user does not have the capability required.
+ * @return string|bool The resulting page's hook_suffix, or false on failure
  */
 function add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function = '' ) {
-	global $submenu;
-	global $menu;
+	global $admin_menu;
 	global $_wp_real_parent_file;
 	global $_wp_submenu_nopriv;
 	global $_registered_pages;
 	global $_parent_pages;
 
 	$menu_slug = plugin_basename( $menu_slug );
-	$parent_slug = plugin_basename( $parent_slug);
+	$parent_slug = plugin_basename( $parent_slug );
 
 	if ( isset( $_wp_real_parent_file[$parent_slug] ) )
 		$parent_slug = $_wp_real_parent_file[$parent_slug];
@@ -1013,18 +1012,24 @@ function add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, 
 		return false;
 	}
 
+	$parent_menu = $admin_menu->get( $parent_slug, 'url' );
+	if ( !$parent_menu )
+		return false;
+
 	// If the parent doesn't already have a submenu, add a link to the parent
 	// as the first item in the submenu. If the submenu file is the same as the
 	// parent file someone is trying to link back to the parent manually. In
 	// this case, don't automatically add a link back to avoid duplication.
-	if (!isset( $submenu[$parent_slug] ) && $menu_slug != $parent_slug ) {
-		foreach ( (array)$menu as $parent_menu ) {
-			if ( $parent_menu[2] == $parent_slug && current_user_can( $parent_menu[1] ) )
-				$submenu[$parent_slug][] = $parent_menu;
-		}
+	if ( !$parent_menu->has_children() && $menu_slug != $parent_slug ) {
+		$admin_menu->add_first_submenu( $parent_menu->id, $parent_menu->title );
 	}
 
-	$submenu[$parent_slug][] = array ( $menu_title, $capability, $menu_slug, $page_title );
+	$parent_menu->append( array(
+		'title' => $menu_title,
+		'cap' => $capability,
+		'url' => $menu_slug,
+		'page_title' => $page_title // TODO: why is this stored here?
+	) );
 
 	$hookname = get_plugin_page_hookname( $menu_slug, $parent_slug);
 	if (!empty ( $function ) && !empty ( $hookname ))

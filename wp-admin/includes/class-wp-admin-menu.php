@@ -119,6 +119,10 @@ class WP_Admin_Menu_Item {
 		return $this->children[ $id ];
 	}
 
+	function has_children() {
+		return !empty( $this->children );
+	}
+
 	function get_children( $args = array() ) {
 		return wp_list_filter( $this->children, $args );
 	}

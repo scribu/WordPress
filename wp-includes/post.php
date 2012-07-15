@@ -920,6 +920,7 @@ function get_post_types( $args = array(), $output = 'names', $operator = 'and' )
  *     * If not set, the default is inherited from show_in_menu
  *     * show_in_menu must be true
  *     * Defaults to null, which places it at the bottom of its area.
+ * - menu_position - The id of the admin menu; this menu will show up above it.
  * - menu_icon - The url to the icon to be used for this menu. Defaults to use the posts icon.
  * - capability_type - The string to use to build the read, edit, and delete capabilities. Defaults to 'post'.
  *     * May be passed as an array to allow for alternative plurals when using this argument as a base to construct the
@@ -980,7 +981,7 @@ function register_post_type( $post_type, $args = array() ) {
 		'public' => false, 'rewrite' => true, 'has_archive' => false, 'query_var' => true,
 		'supports' => array(), 'register_meta_box_cb' => null,
 		'taxonomies' => array(),
-		'show_ui' => null, 'show_in_menu' => null, 'menu_icon' => null,
+		'show_ui' => null, 'show_in_menu' => null, 'menu_position' => null, 'menu_icon' => null,
 		'can_export' => true,
 		'show_in_nav_menus' => null, 'show_in_admin_bar' => null,
 		'delete_with_user' => null,
@@ -1005,6 +1006,11 @@ function register_post_type( $post_type, $args = array() ) {
 	// If not set, default to the setting for show_ui.
 	if ( null === $args->show_in_menu || ! $args->show_ui )
 		$args->show_in_menu = $args->show_ui;
+
+	if ( is_numeric( $args->menu_position ) ) {
+		_deprecated_argument( __FUNCTION__, '3.5', __( "Numeric values for 'menu_position' are deprecated. Use menu ids instead." ) );
+		$args->menu_position = null;
+	}
 
 	// If not set, default to the whether the full UI is shown.
 	if ( null === $args->show_in_admin_bar )

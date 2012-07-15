@@ -184,6 +184,57 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 		) );
 	}
 
+	function _add_cpt_menus() {
+		$cpt_list = get_post_types( array(
+			'show_ui' => true,
+			'_builtin' => false,
+			'show_in_menu' => true
+		) );
+
+		foreach ( $cpt_list as $ptype ) {
+			$ptype_obj = get_post_type_object( $ptype );
+			// TODO: use in includes/menu.php
+			$ptype_for_id = sanitize_html_class( $ptype );
+
+			if ( is_string( $ptype_obj->menu_icon ) ) {
+				$admin_menu_icon = esc_url( $ptype_obj->menu_icon );
+				$ptype_class = $ptype_for_id;
+			} else {
+				$admin_menu_icon = 'div';
+				$ptype_class = 'post';
+			}
+
+			$args =  array(
+				'title' => esc_attr( $ptype_obj->labels->menu_name ),
+				'cap' => $ptype_obj->cap->edit_posts,
+				'class' => 'menu-icon-' . $ptype_class,
+				'id' => 'posts-' . $ptype_for_id,
+				'url' => "edit.php?post_type=$ptype",
+				'icon' => $admin_menu_icon,
+				'_index' => false
+			);
+
+			if ( $ptype_obj->menu_position ) {
+				$before = $ptype_obj->menu_position;
+			} else {
+				$before = 'separator2';
+			}
+
+			$this->insert_before( $before, $args );
+
+			$this->add_first_submenu( 'posts-' . $ptype_for_id, $ptype_obj->labels->all_items );
+
+			$this->add_submenu( 'posts-' . $ptype_for_id, array(
+				'title' => $ptype_obj->labels->add_new,
+				'cap' => $ptype_obj->cap->edit_posts,
+				'url' => "post-new.php?post_type=$ptype",
+				'_index' => 10
+			) );
+
+			$this->_add_tax_submenus( 'posts-' . $ptype_for_id, $ptype );
+		}
+	}
+
 	function _add_tax_submenus( $parent_id, $ptype ) {
 		$i = 15;
 		foreach ( get_taxonomies( array(), 'objects' ) as $tax ) {

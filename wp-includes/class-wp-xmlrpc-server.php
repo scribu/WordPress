@@ -711,7 +711,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		}
 
 		if ( in_array( 'menu', $fields ) ) {
-			$_post_type['menu_position'] = (int) $post_type->menu_position;
+			$_post_type['menu_position'] = $post_type->menu_position;
 			$_post_type['menu_icon'] = $post_type->menu_icon;
 			$_post_type['show_in_menu'] = (bool) $post_type->show_in_menu;
 		}

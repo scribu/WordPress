@@ -159,40 +159,6 @@ $admin_menu->append( array(
 
 unset($awaiting_mod);
 
-foreach ( (array) get_post_types( array('show_ui' => true, '_builtin' => false, 'show_in_menu' => true ) ) as $ptype ) {
-	$ptype_obj = get_post_type_object( $ptype );
-	$ptype_for_id = sanitize_html_class( $ptype );
-	if ( is_string( $ptype_obj->menu_icon ) ) {
-		$admin_menu_icon = esc_url( $ptype_obj->menu_icon );
-		$ptype_class = $ptype_for_id;
-	} else {
-		$admin_menu_icon = 'div';
-		$ptype_class = 'post';
-	}
-
-	$admin_menu->append( array(
-		'title' => esc_attr( $ptype_obj->labels->menu_name ),
-		'cap' => $ptype_obj->cap->edit_posts,
-		'class' => 'menu-icon-' . $ptype_class,
-		'id' => 'posts-' . $ptype_for_id,
-		'url' => "edit.php?post_type=$ptype",
-		'icon' => $admin_menu_icon,
-		'_index' => false
-	) );
-
-	$admin_menu->add_first_submenu( 'posts-' . $ptype_for_id, $ptype_obj->labels->all_items );
-
-	$admin_menu->add_submenu( 'posts-' . $ptype_for_id, array(
-		'title' => $ptype_obj->labels->add_new,
-		'cap' => $ptype_obj->cap->edit_posts,
-		'url' => "post-new.php?post_type=$ptype",
-		'_index' => 10
-	) );
-
-	$admin_menu->_add_tax_submenus( 'posts-' . $ptype_for_id, $ptype );
-}
-unset($ptype, $ptype_obj, $ptype_class, $ptype_for_id, $admin_menu_icon);
-
 $admin_menu->append( array(
 	'id' => 'separator2',
 	'class' => 'wp-menu-separator',
@@ -411,6 +377,9 @@ $admin_menu->append( array(
 	'class' => 'wp-menu-separator',
 	'_index' => 99
 ) );
+
+// CPT menus need to be added later due to 'menu_position'
+$admin_menu->_add_cpt_menus();
 
 // Back-compat for old top-levels
 $_wp_real_parent_file['post.php'] = 'edit.php';

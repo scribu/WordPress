@@ -186,10 +186,15 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 			if ( ! $tax->show_ui || ! in_array($ptype, (array) $tax->object_type, true) )
 				continue;
 
+			$url = 'edit-tags.php?taxonomy=' . $tax->name;
+
+			if ( 'post' != $ptype )
+				$url .= '&amp;post_type=' . $ptype;
+
 			$this->add_submenu( $parent_id, array(
 				'title' => esc_attr( $tax->labels->menu_name ),
 				'cap' => $tax->cap->manage_terms,
-				'url' => "edit-tags.php?taxonomy=$tax->name&amp;post_type=$ptype",
+				'url' => $url,
 				'_index' => $i++
 			) );
 		}

@@ -918,7 +918,6 @@ function get_post_types( $args = array(), $output = 'names', $operator = 'and' )
  *     * If not set, the default is inherited from show_ui
  * - show_in_admin_bar - Makes this post type available via the admin bar.
  *     * If not set, the default is inherited from show_in_menu
- * - menu_position - The position in the menu order the post type should appear.
  *     * show_in_menu must be true
  *     * Defaults to null, which places it at the bottom of its area.
  * - menu_icon - The url to the icon to be used for this menu. Defaults to use the posts icon.
@@ -980,9 +979,10 @@ function register_post_type( $post_type, $args = array() ) {
 		'_builtin' => false, '_edit_link' => 'post.php?post=%d', 'hierarchical' => false,
 		'public' => false, 'rewrite' => true, 'has_archive' => false, 'query_var' => true,
 		'supports' => array(), 'register_meta_box_cb' => null,
-		'taxonomies' => array(), 'show_ui' => null, 'menu_position' => null, 'menu_icon' => null,
+		'taxonomies' => array(),
+		'show_ui' => null, 'show_in_menu' => null, 'menu_icon' => null,
 		'can_export' => true,
-		'show_in_nav_menus' => null, 'show_in_menu' => null, 'show_in_admin_bar' => null,
+		'show_in_nav_menus' => null, 'show_in_admin_bar' => null,
 		'delete_with_user' => null,
 	);
 	$args = wp_parse_args($args, $defaults);

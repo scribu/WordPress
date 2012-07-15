@@ -168,23 +168,14 @@ $_wp_last_object_menu = 25; // The index of the last top-level menu in the objec
 
 foreach ( (array) get_post_types( array('show_ui' => true, '_builtin' => false, 'show_in_menu' => true ) ) as $ptype ) {
 	$ptype_obj = get_post_type_object( $ptype );
-	$ptype_menu_position = is_int( $ptype_obj->menu_position ) ? $ptype_obj->menu_position : ++$_wp_last_object_menu; // If we're to use $_wp_last_object_menu, increment it first.
 	$ptype_for_id = sanitize_html_class( $ptype );
 	if ( is_string( $ptype_obj->menu_icon ) ) {
-		$admin_menu_icon   = esc_url( $ptype_obj->menu_icon );
+		$admin_menu_icon = esc_url( $ptype_obj->menu_icon );
 		$ptype_class = $ptype_for_id;
 	} else {
-		$admin_menu_icon   = 'div';
+		$admin_menu_icon = 'div';
 		$ptype_class = 'post';
 	}
-
-	// TODO
-/*
-	// if $ptype_menu_position is already populated or will be populated by a hard-coded value below, increment the position.
-	$core_menu_positions = array(59, 60, 65, 70, 75, 80, 85, 99);
-	while ( isset($admin_menu[$ptype_menu_position]) || in_array($ptype_menu_position, $core_menu_positions) )
-		$ptype_menu_position++;
-/**/
 
 	$admin_menu->append( array(
 		'title' => esc_attr( $ptype_obj->labels->menu_name ),
@@ -193,7 +184,7 @@ foreach ( (array) get_post_types( array('show_ui' => true, '_builtin' => false, 
 		'id' => 'posts-' . $ptype_for_id,
 		'url' => "edit.php?post_type=$ptype",
 		'icon' => $admin_menu_icon,
-		'_index' => $ptype_menu_position
+		'_index' => false
 	) );
 
 	$admin_menu->add_first_submenu( 'posts-' . $ptype_for_id, $ptype_obj->labels->all_items );
@@ -207,7 +198,7 @@ foreach ( (array) get_post_types( array('show_ui' => true, '_builtin' => false, 
 
 	$admin_menu->_add_tax_submenus( 'posts-' . $ptype_for_id, $ptype );
 }
-unset($ptype, $ptype_obj, $ptype_class, $ptype_for_id, $ptype_menu_position, $admin_menu_icon);
+unset($ptype, $ptype_obj, $ptype_class, $ptype_for_id, $admin_menu_icon);
 
 $admin_menu->append( array(
 	'id' => 'separator2',

@@ -6,21 +6,6 @@
  * @subpackage Administration
  */
 
-/**
- * Constructs the admin menu bar.
- *
- * The elements in the array are :
- *     0: Menu item name
- *     1: Minimum level or capability required.
- *     2: The URL of the item's file
- *     3: Class
- *     4: ID
- *     5: Icon for top level menu
- *
- * @global array $menu
- * @var array
- */
-
 $admin_menu = new WP_Admin_Menu;
 
 $admin_menu->append( array(

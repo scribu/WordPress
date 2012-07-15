@@ -114,7 +114,7 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 			echo "\n\t<div class='wp-submenu'><div class='wp-submenu-wrap'>";
 			echo "<div class='wp-submenu-head'>{$item->title}</div><ul>";
 			$first = true;
-			foreach ( $submenu_items as $sub_key => $sub_item ) {
+			foreach ( $submenu_items as $sub_item ) {
 				if ( ! current_user_can( $sub_item->cap ) )
 					continue;
 

@@ -48,6 +48,18 @@ function _admin_menu_get_url( $menu_hook, $item, &$admin_is_parent ) {
 	return $url;
 }
 
+function _admin_menu_is_current( $item ) {
+	global $self, $typenow, $parent_file;
+
+	if ( $parent_file && $item->url == $parent_file )
+		return true;
+
+	if ( empty($typenow) && $self == $item->url )
+		return true;
+
+	return false;
+}
+
 function _admin_submenu_is_current( $sub_item, $item ) {
 	global $self, $typenow, $submenu_file, $plugin_page;
 
@@ -108,8 +120,6 @@ function _admin_submenu_get_url( $sub_item, $item, $menu_file, $admin_is_parent 
  * @param bool $submenu_as_parent
  */
 function _wp_menu_output( $menu, $submenu_as_parent = true ) {
-	global $self, $parent_file, $pagenow;
-
 	$first = true;
 	foreach ( $menu->get_children() as $item ) {
 
@@ -135,8 +145,11 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 			$class[] = 'wp-has-submenu';
 		}
 
-		if ( ( $parent_file && $item->url == $parent_file ) || ( empty($typenow) && $self == $item->url ) ) {
-			$class[] = ! empty( $submenu_items ) ? 'wp-has-current-submenu wp-menu-open' : 'current';
+		if ( _admin_menu_is_current( $item ) ) {
+			if ( ! empty( $submenu_items ) )
+				$class[] = 'wp-has-current-submenu wp-menu-open';
+			else
+				$class[] = 'current';
 		} else {
 			$class[] = 'wp-not-current-submenu';
 			if ( ! empty( $submenu_items ) )

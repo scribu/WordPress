@@ -2457,12 +2457,18 @@ function wp_maybe_load_widgets() {
  * Append the Widgets menu to the themes main menu.
  *
  * @since 2.2.0
- * @uses $submenu The administration submenu list.
+ * @uses $admin_menu The administration menu object.
  */
 function wp_widgets_add_menu() {
-	global $submenu;
-	$submenu['themes.php'][7] = array( __( 'Widgets' ), 'edit_theme_options', 'widgets.php' );
-	ksort( $submenu['themes.php'], SORT_NUMERIC );
+	global $admin_menu;
+
+	$parent = $admin_menu->get( 'appearance' );
+
+	$parent->insert_after( 'themes.php', array(
+		'title' => __( 'Widgets' ),
+		'cap' => 'edit_theme_options',
+		'url' => 'widgets.php'
+	) );
 }
 
 /**

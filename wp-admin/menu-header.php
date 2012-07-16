@@ -48,6 +48,34 @@ function _admin_menu_get_url( $menu_hook, $item, &$admin_is_parent ) {
 	return $url;
 }
 
+function _admin_submenu_is_current( $sub_item, $item ) {
+	global $self, $typenow, $submenu_file, $plugin_page;
+
+	if ( isset( $submenu_file ) && $submenu_file == $sub_item->url )
+		return true;
+
+	if ( !isset( $plugin_page ) && $self == $sub_item->url )
+		return true;
+
+	// Handle current for post_type=post|page|foo pages, which won't match $self.
+	$self_type = ! empty( $typenow ) ? $self . '?post_type=' . $typenow : 'nothing';
+
+	// If plugin_page is set the parent must either match the current page or not physically exist.
+	// This allows plugin pages with the same hook to exist under different parents.
+	if (
+		isset( $plugin_page ) &&
+		$plugin_page == $sub_item->url &&
+		(
+			$item->url == $self_type ||
+			$item->url == $self ||
+			!file_exists( $menu_file )
+		)
+	)
+		return true;
+
+	return false;
+}
+
 function _admin_submenu_get_url( $sub_item, $item, $menu_file, $admin_is_parent ) {
 	$menu_hook = get_plugin_page_hook( $sub_item->url, $item->url );
 
@@ -80,7 +108,7 @@ function _admin_submenu_get_url( $sub_item, $item, $menu_file, $admin_is_parent 
  * @param bool $submenu_as_parent
  */
 function _wp_menu_output( $menu, $submenu_as_parent = true ) {
-	global $self, $parent_file, $submenu_file, $plugin_page, $pagenow, $typenow;
+	global $self, $parent_file, $pagenow;
 
 	$first = true;
 	foreach ( $menu->get_children() as $item ) {
@@ -169,18 +197,7 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 				if ( false !== ( $pos = strpos( $menu_file, '?' ) ) )
 					$menu_file = substr( $menu_file, 0, $pos );
 
-				// Handle current for post_type=post|page|foo pages, which won't match $self.
-				$self_type = ! empty( $typenow ) ? $self . '?post_type=' . $typenow : 'nothing';
-
-				if ( isset( $submenu_file ) ) {
-					if ( $submenu_file == $sub_item->url )
-						$class[] = 'current';
-				// If plugin_page is set the parent must either match the current page or not physically exist.
-				// This allows plugin pages with the same hook to exist under different parents.
-				} else if (
-					( ! isset( $plugin_page ) && $self == $sub_item->url ) ||
-					( isset( $plugin_page ) && $plugin_page == $sub_item->url && ( $item->url == $self_type || $item->url == $self || file_exists($menu_file) === false ) )
-				) {
+				if ( _admin_submenu_is_current( $sub_item, $item ) ) {
 					$class[] = 'current';
 				}
 

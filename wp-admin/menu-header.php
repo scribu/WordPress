@@ -23,6 +23,28 @@ $parent_file = apply_filters("parent_file", $parent_file); // For plugins to mov
 
 get_admin_page_parent();
 
+function _admin_menu_get_menu_file( $item ) {
+	$menu_file = $item->url;
+
+	if ( false !== ( $pos = strpos( $menu_file, '?' ) ) )
+		$menu_file = substr($menu_file, 0, $pos);
+
+	return $menu_file;
+}
+
+function _admin_menu_get_url( $menu_hook, $item, &$admin_is_parent ) {
+	$menu_file = _admin_menu_get_menu_file( $item );
+
+	if ( !empty( $menu_hook ) || ( 'index.php' != $item->url && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) ) ) {
+		$admin_is_parent = true;
+		$url = 'admin.php?page=' . $item->url;
+	} else {
+		$url = $item->url;
+	}
+
+	return $url;
+}
+
 /**
  * Display menu.
  *
@@ -86,30 +108,22 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 
 		echo "\n\t<li$class$id>";
 
+		$url = false;
 		if ( $submenu_as_parent && ! empty( $submenu_items ) ) {
 			$first_submenu = reset( $submenu_items );
 
 			$menu_hook = get_plugin_page_hook( $first_submenu->url, $item->url );
-			$menu_file = $first_submenu->url;
-			if ( false !== ( $pos = strpos( $menu_file, '?' ) ) )
-				$menu_file = substr( $menu_file, 0, $pos );
-			if ( ! empty( $menu_hook ) || ( ('index.php' != $first_submenu->url) && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) ) ) {
-				$admin_is_parent = true;
-				echo "<div class='wp-menu-image'><a href='admin.php?page={$first_submenu->url}' tabindex='-1' aria-label='$aria_label'>$img</a></div>$arrow<a href='admin.php?page={$first_submenu->url}'$class $aria_attributes>$title</a>";
-			} else {
-				echo "\n\t<div class='wp-menu-image'><a href='{$first_submenu->url}' tabindex='-1' aria-label='$aria_label'>$img</a></div>$arrow<a href='{$first_submenu->url}'$class $aria_attributes>$title</a>";
-			}
-		} elseif ( ! empty( $item->url ) && current_user_can( $item->cap ) ) {
+			$url = _admin_menu_get_url( $menu_hook, $first_submenu, $admin_is_parent );
+		}
+		elseif ( ! empty( $item->url ) && current_user_can( $item->cap ) ) {
 			$menu_hook = get_plugin_page_hook( $item->url, 'admin.php' );
-			$menu_file = $item->url;
-			if ( false !== ( $pos = strpos( $menu_file, '?' ) ) )
-				$menu_file = substr( $menu_file, 0, $pos );
-			if ( ! empty( $menu_hook ) || ( ('index.php' != $item->url) && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) ) ) {
-				$admin_is_parent = true;
-				echo "\n\t<div class='wp-menu-image'><a href='admin.php?page={$item->url}' tabindex='-1' aria-label='$aria_label'>$img</a></div>$arrow<a href='admin.php?page={$item->url}'$class $aria_attributes>{$item->title}</a>";
-			} else {
-				echo "\n\t<div class='wp-menu-image'><a href='{$item->url}' tabindex='-1' aria-label='$aria_label'>$img</a></div>$arrow<a href='{$item->url}'$class $aria_attributes>{$item->title}</a>";
-			}
+			$url = _admin_menu_get_url( $menu_hook, $item, $admin_is_parent );
+		}
+
+		if ( $url ) {
+			echo "<div class='wp-menu-image'><a href='$url' tabindex='-1' aria-label='$aria_label'>$img</a></div>";
+			echo $arrow;
+			echo "<a href='$url'$class $aria_attributes>$title</a>";
 		}
 
 		if ( ! empty( $submenu_items ) ) {
@@ -149,13 +163,12 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 				$class = $class ? ' class="' . join( ' ', $class ) . '"' : '';
 
 				$menu_hook = get_plugin_page_hook($sub_item->url, $item->url);
-				$sub_file = $sub_item->url;
-				if ( false !== ( $pos = strpos( $sub_file, '?' ) ) )
-					$sub_file = substr($sub_file, 0, $pos);
+
+				$sub_file = _admin_menu_get_menu_file( $sub_item );
 
 				$title = wptexturize($sub_item->title);
 
-				if ( ! empty( $menu_hook ) || ( ('index.php' != $sub_item->url) && file_exists( WP_PLUGIN_DIR . "/$sub_file" ) ) ) {
+				if ( !empty( $menu_hook ) || ( 'index.php' != $sub_item->url && file_exists( WP_PLUGIN_DIR . "/$sub_file" ) ) ) {
 					// If admin.php is the current page or if the parent exists as a file in the plugins or admin dir
 					if ( (!$admin_is_parent && file_exists(WP_PLUGIN_DIR . "/$menu_file") && !is_dir(WP_PLUGIN_DIR . "/{$item->url}")) || file_exists($menu_file) )
 						$sub_item_url = add_query_arg( array('page' => $sub_item->url), $item->url );
@@ -163,10 +176,11 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 						$sub_item_url = add_query_arg( array('page' => $sub_item->url), 'admin.php' );
 
 					$sub_item_url = esc_url( $sub_item_url );
-					echo "<li$class><a href='$sub_item_url'$class>$title</a></li>";
 				} else {
-					echo "<li$class><a href='{$sub_item->url}'$class>$title</a></li>";
+					$sub_item_url = esc_url( $sub_item->url );
 				}
+
+				echo "<li$class><a href='{$sub_item_url}'$class $aria_attributes>$title</a></li>";
 			}
 			echo "</ul></div></div>";
 		}

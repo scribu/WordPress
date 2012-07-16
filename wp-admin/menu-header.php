@@ -88,7 +88,9 @@ function _admin_submenu_is_current( $sub_item, $item ) {
 	return false;
 }
 
-function _admin_submenu_get_url( $sub_item, $item, $menu_file, $admin_is_parent ) {
+function _admin_submenu_get_url( $sub_item, $item, $admin_is_parent ) {
+	$menu_file = _admin_menu_get_menu_file( $item );
+
 	$menu_hook = get_plugin_page_hook( $sub_item->url, $item->url );
 
 	$sub_file = _admin_menu_get_menu_file( $sub_item );
@@ -205,11 +207,6 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 					$first = false;
 				}
 
-				$menu_file = $item->url;
-
-				if ( false !== ( $pos = strpos( $menu_file, '?' ) ) )
-					$menu_file = substr( $menu_file, 0, $pos );
-
 				if ( _admin_submenu_is_current( $sub_item, $item ) ) {
 					$class[] = 'current';
 				}
@@ -218,7 +215,7 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 
 				$title = wptexturize( $sub_item->title );
 
-				$sub_item_url = _admin_submenu_get_url( $sub_item, $item, $menu_file, $admin_is_parent );
+				$sub_item_url = _admin_submenu_get_url( $sub_item, $item, $admin_is_parent );
 				$sub_item_url = esc_url( $sub_item_url );
 
 				echo "<li$class><a href='{$sub_item_url}'$class $aria_attributes>$title</a></li>";

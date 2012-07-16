@@ -133,8 +133,10 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 		}
 
 		$admin_is_parent = false;
-		$class = array();
+
 		$aria_attributes = '';
+
+		$class = array();
 
 		if ( $first ) {
 			$class[] = 'wp-first-item';
@@ -164,13 +166,17 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 		$class[] = 'menu-top';
 
 		$class = $class ? ' class="' . join( ' ', $class ) . '"' : '';
+
 		$id = ! empty( $item->id ) ? ' id="menu-' . preg_replace( '|[^a-zA-Z0-9_:.]|', '-', $item->id ) . '"' : '';
+
 		$img = '';
 		if ( ! empty( $item->icon ) )
 			$img = ( 'div' === $item->icon ) ? '<br />' : '<img src="' . $item->icon . '" alt="" />';
+
 		$arrow = '<div class="wp-menu-arrow"><div></div></div>';
 
 		$title = wptexturize( $item->title );
+
 		$aria_label = esc_attr( strip_tags( $item->title ) ); // strip the comment/plugins/updates bubbles spans but keep the pending number if any
 
 		echo "\n\t<li$class$id>";
@@ -202,6 +208,7 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 					continue;
 
 				$class = array();
+
 				if ( $first ) {
 					$class[] = 'wp-first-item';
 					$first = false;
@@ -218,7 +225,7 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 				$sub_item_url = _admin_submenu_get_url( $sub_item, $item, $admin_is_parent );
 				$sub_item_url = esc_url( $sub_item_url );
 
-				echo "<li$class><a href='{$sub_item_url}'$class $aria_attributes>$title</a></li>";
+				echo "<li$class><a href='{$sub_item_url}'$class>$title</a></li>";
 			}
 			echo "</ul></div></div>";
 		}
@@ -229,7 +236,6 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 	echo '<span>' . esc_html__( 'Collapse menu' ) . '</span>';
 	echo '</li>';
 }
-
 ?>
 
 <div id="adminmenuback"></div>

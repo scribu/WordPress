@@ -14,7 +14,7 @@ $admin_menu->append( array(
 	'title' => __( 'Dashboard' ),
 	'cap' => 'manage_network',
 	'id' => 'dashboard',
-	'url' => 'index.php',
+	'slug' => 'index.php',
 	'_index' => 2
 ) );
 
@@ -29,7 +29,7 @@ $admin_menu->append( array(
 	'title' => __( 'Sites' ),
 	'cap' => 'manage_sites',
 	'id' => 'site',
-	'url' => 'sites.php',
+	'slug' => 'sites.php',
 	'_index' => 5
 ) );
 
@@ -39,14 +39,14 @@ $admin_menu->append( array(
 		/* translators: add new site */
 		'title' => _x( 'Add New', 'site' ),
 		'cap' => 'create_sites',
-		'url' => 'site-new.php',
+		'slug' => 'site-new.php',
 		'_index' => 10
 	) );
 
 $admin_menu->append( array(
 	'title' => __( 'Users' ),
 	'cap' => 'manage_network_users',
-	'url' => 'users.php',
+	'slug' => 'users.php',
 	'id' => 'users',
 	'_index' => 10
 ) );
@@ -56,7 +56,7 @@ $admin_menu->append( array(
 	$admin_menu->add_submenu( 'users', array(
 		'title' => _x( 'Add New', 'user' ),
 		'cap' => 'create_users',
-		'url' => 'user-new.php',
+		'slug' => 'user-new.php',
 		'_index' => 10
 	) );
 
@@ -65,7 +65,7 @@ $update_data = wp_get_update_data();
 $admin_menu->append( array(
 	'title' => _admin_menu_theme_update_count( $update_data ),
 	'cap' => 'manage_network_themes',
-	'url' => 'themes.php',
+	'slug' => 'themes.php',
 	'id' => 'appearance',
 	'_index' => 15
 ) );
@@ -75,21 +75,21 @@ $admin_menu->append( array(
 	$admin_menu->add_submenu( 'appearance', array(
 		'title' => _x( 'Add New', 'theme' ),
 		'cap' => 'install_themes',
-		'url' => 'theme-install.php',
+		'slug' => 'theme-install.php',
 		'_index' => 10
 	) );
 
 	$admin_menu->add_submenu( 'appearance', array(
 		'title' => _x( 'Editor', 'theme editor' ),
 		'cap' => 'edit_themes',
-		'url' => 'theme-editor.php',
+		'slug' => 'theme-editor.php',
 		'_index' => 15
 	) );
 
 $admin_menu->append( array(
 	'title' => _admin_menu_plugin_update_count( $update_data ),
 	'cap' => 'manage_network_plugins',
-	'url' => 'plugins.php',
+	'slug' => 'plugins.php',
 	'id' => 'plugins',
 	'_index' => 20
 ) );
@@ -99,21 +99,21 @@ $admin_menu->append( array(
 	$admin_menu->add_submenu( 'plugins', array(
 		'title' => _x( 'Add New', 'plugin' ),
 		'cap' => 'install_plugins',
-		'url' => 'plugin-install.php',
+		'slug' => 'plugin-install.php',
 		'_index' => 10
 	) );
 
 	$admin_menu->add_submenu( 'plugins', array(
 		'title' => _x( 'Editor', 'plugin editor' ),
 		'cap' => 'edit_plugins',
-		'url' => 'plugin-editor.php',
+		'slug' => 'plugin-editor.php',
 		'_index' => 15
 	) );
 
 $admin_menu->append( array(
 	'title' => __('Settings'),
 	'cap' => 'manage_network_options',
-	'url' => 'settings.php',
+	'slug' => 'settings.php',
 	'id' => 'settings',
 	'_index' => 25
 ) );
@@ -123,14 +123,14 @@ $admin_menu->append( array(
 	$admin_menu->add_submenu( 'settings', array(
 		'title' => __('Writing'),
 		'cap' => 'manage_network_options',
-		'url' => 'setup.php',
+		'slug' => 'setup.php',
 		'_index' => 10
 	) );
 
 $admin_menu->append( array(
 	'title' => _admin_menu_update_count( $update_data ),
 	'cap' => 'manage_network',
-	'url' => 'upgrade.php',
+	'slug' => 'upgrade.php',
 	'class' => 'menu-icon-tools',
 	'id' => 'update',
 	'_index' => 30
@@ -141,7 +141,7 @@ $admin_menu->append( array(
 	$admin_menu->add_submenu( 'update', array(
 		'title' => __('Available Updates'),
 		'cap' => 'update_core',
-		'url' => 'update-core.php',
+		'slug' => 'update-core.php',
 		'_index' => 15
 	) );
 

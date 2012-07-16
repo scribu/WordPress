@@ -13,7 +13,7 @@ $admin_menu->append( array(
 	'title' => __( 'Dashboard' ),
 	'cap' => 'exist',
 	'id' => 'dashboard',
-	'url' => 'index.php',
+	'slug' => 'index.php',
 	'_index' => 2
 ) );
 
@@ -27,7 +27,7 @@ $admin_menu->append( array(
 	'title' => __( 'Profile' ),
 	'cap' => 'exist',
 	'id' => 'users',
-	'url' => 'profile.php',
+	'slug' => 'profile.php',
 	'_index' => 70
 ) );
 

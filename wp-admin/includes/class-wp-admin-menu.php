@@ -10,7 +10,7 @@ class WP_Admin_Menu_Item {
 	function __construct( $payload ) {
 
 		if ( !isset( $payload['id'] ) ) {
-			$payload['id'] = $payload['url'];
+			$payload['id'] = $payload['slug'];
 		}
 
 		if ( isset( $payload['cap'] ) )
@@ -179,7 +179,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 		return $parent->append( array(
 			'title' => $title,
 			'cap' => $parent->cap,
-			'url' => $parent->url,
+			'slug' => $parent->slug,
 			'_index' => $_index
 		) );
 	}
@@ -209,7 +209,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 				'cap' => $ptype_obj->cap->edit_posts,
 				'class' => 'menu-icon-' . $ptype_class,
 				'id' => 'posts-' . $ptype_for_id,
-				'url' => "edit.php?post_type=$ptype",
+				'slug' => "edit.php?post_type=$ptype",
 				'icon' => $admin_menu_icon,
 				'_index' => false
 			);
@@ -227,7 +227,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 			$this->add_submenu( 'posts-' . $ptype_for_id, array(
 				'title' => $ptype_obj->labels->add_new,
 				'cap' => $ptype_obj->cap->edit_posts,
-				'url' => "post-new.php?post_type=$ptype",
+				'slug' => "post-new.php?post_type=$ptype",
 				'_index' => 10
 			) );
 
@@ -241,15 +241,15 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 			if ( ! $tax->show_ui || ! in_array($ptype, (array) $tax->object_type, true) )
 				continue;
 
-			$url = 'edit-tags.php?taxonomy=' . $tax->name;
+			$slug = 'edit-tags.php?taxonomy=' . $tax->name;
 
 			if ( 'post' != $ptype )
-				$url .= '&amp;post_type=' . $ptype;
+				$slug .= '&amp;post_type=' . $ptype;
 
 			$this->add_submenu( $parent_id, array(
 				'title' => esc_attr( $tax->labels->menu_name ),
 				'cap' => $tax->cap->manage_terms,
-				'url' => $url,
+				'slug' => $slug,
 				'_index' => $i++
 			) );
 		}
@@ -258,7 +258,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 	/** @private */
 	function _loop( $callback ) {
 		foreach ( $this->get_children() as $item ) {
-			if ( !isset( $item->url ) )
+			if ( !isset( $item->slug ) )
 				continue;
 
 			call_user_func( $callback, $item, $this );

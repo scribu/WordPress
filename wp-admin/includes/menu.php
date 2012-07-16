@@ -24,10 +24,10 @@ $admin_menu->_loop( '_check_admin_submenu_privs' );
 function _generate_admin_page_hooks( $menu_item, $admin_menu ) {
 	global $admin_page_hooks;
 
-	if ( false !== $pos = strpos($menu_item->url, '?') ) {
+	if ( false !== $pos = strpos($menu_item->slug, '?') ) {
 		// Handle post_type=post|page|foo pages.
-		$hook_name = substr($menu_item->url, 0, $pos);
-		$hook_args = substr($menu_item->url, $pos + 1);
+		$hook_name = substr($menu_item->slug, 0, $pos);
+		$hook_args = substr($menu_item->slug, $pos + 1);
 		wp_parse_str($hook_args, $hook_args);
 		// Set the hook name to be the post type.
 		if ( isset($hook_args['post_type']) )
@@ -36,7 +36,7 @@ function _generate_admin_page_hooks( $menu_item, $admin_menu ) {
 			$hook_name = basename($hook_name, '.php');
 		unset($hook_args);
 	} else {
-		$hook_name = basename($menu_item->url, '.php');
+		$hook_name = basename($menu_item->slug, '.php');
 	}
 	$hook_name = sanitize_title($hook_name);
 
@@ -45,7 +45,7 @@ function _generate_admin_page_hooks( $menu_item, $admin_menu ) {
 	elseif ( !$hook_name )
 		continue;
 
-	$admin_page_hooks[$menu_item->url] = $hook_name;
+	$admin_page_hooks[$menu_item->slug] = $hook_name;
 }
 
 function _check_admin_submenu_privs( $menu_item, $admin_menu ) {
@@ -55,7 +55,7 @@ function _check_admin_submenu_privs( $menu_item, $admin_menu ) {
 	foreach ( $menu_item->get_children() as $submenu ) {
 		if ( !current_user_can( $submenu->cap ) ) {
 			$menu_item->remove( $submenu->id );
-			$_wp_submenu_nopriv[$menu_item->url][$submenu->url] = true;
+			$_wp_submenu_nopriv[$menu_item->slug][$submenu->slug] = true;
 		}
 	}
 
@@ -68,8 +68,8 @@ function _check_admin_submenu_privs( $menu_item, $admin_menu ) {
 
 	$first_sub = array_shift( $subs );
 
-	$old_parent = $menu_item->url;
-	$new_parent = $first_sub->url;
+	$old_parent = $menu_item->slug;
+	$new_parent = $first_sub->slug;
 
 	if ( $new_parent != $old_parent ) {
 		foreach ( $subs as $sub ) {
@@ -100,7 +100,7 @@ function _check_admin_menu_privs( $menu_item, $admin_menu ) {
 	global $_wp_menu_nopriv;
 
 	if ( ! current_user_can( $menu_item->cap ) )
-		$_wp_menu_nopriv[$menu_item->url] = true;
+		$_wp_menu_nopriv[$menu_item->slug] = true;
 
 	$subs = $menu_item->get_children();
 
@@ -108,14 +108,14 @@ function _check_admin_menu_privs( $menu_item, $admin_menu ) {
 	// remove the submenu.
 	if ( ! empty( $subs ) && 1 == count( $subs ) ) {
 		$first_sub = array_shift( $subs );
-		if ( $menu_item->url == $first_sub->url )
+		if ( $menu_item->slug == $first_sub->slug )
 			$menu_item->remove( $first_sub->id );
 	}
 
 	// If submenu is empty...
 	if ( !$menu_item->has_children() ) {
 		// And user doesn't have privs, remove menu.
-		if ( isset( $_wp_menu_nopriv[$menu_item->url] ) ) {
+		if ( isset( $_wp_menu_nopriv[$menu_item->slug] ) ) {
 			$admin_menu->remove( $menu_item->id );
 		}
 	}

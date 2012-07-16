@@ -24,7 +24,7 @@ $parent_file = apply_filters("parent_file", $parent_file); // For plugins to mov
 get_admin_page_parent();
 
 function _admin_menu_get_menu_file( $item ) {
-	$menu_file = $item->url;
+	$menu_file = $item->slug;
 
 	if ( false !== ( $pos = strpos( $menu_file, '?' ) ) )
 		$menu_file = substr($menu_file, 0, $pos);
@@ -37,12 +37,12 @@ function _admin_menu_get_url( $menu_hook, $item, &$admin_is_parent ) {
 
 	if (
 		!empty( $menu_hook ) ||
-		( 'index.php' != $item->url && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) )
+		( 'index.php' != $item->slug && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) )
 	) {
 		$admin_is_parent = true;
-		$url = 'admin.php?page=' . $item->url;
+		$url = 'admin.php?page=' . $item->slug;
 	} else {
-		$url = $item->url;
+		$url = $item->slug;
 	}
 
 	return $url;
@@ -51,10 +51,10 @@ function _admin_menu_get_url( $menu_hook, $item, &$admin_is_parent ) {
 function _admin_menu_is_current( $item ) {
 	global $self, $typenow, $parent_file;
 
-	if ( $parent_file && $item->url == $parent_file )
+	if ( $parent_file && $item->slug == $parent_file )
 		return true;
 
-	if ( empty($typenow) && $self == $item->url )
+	if ( empty($typenow) && $self == $item->slug )
 		return true;
 
 	return false;
@@ -63,10 +63,10 @@ function _admin_menu_is_current( $item ) {
 function _admin_submenu_is_current( $sub_item, $item ) {
 	global $self, $typenow, $submenu_file, $plugin_page;
 
-	if ( isset( $submenu_file ) && $submenu_file == $sub_item->url )
+	if ( isset( $submenu_file ) && $submenu_file == $sub_item->slug )
 		return true;
 
-	if ( !isset( $plugin_page ) && $self == $sub_item->url )
+	if ( !isset( $plugin_page ) && $self == $sub_item->slug )
 		return true;
 
 	// Handle current for post_type=post|page|foo pages, which won't match $self.
@@ -76,10 +76,10 @@ function _admin_submenu_is_current( $sub_item, $item ) {
 	// This allows plugin pages with the same hook to exist under different parents.
 	if (
 		isset( $plugin_page ) &&
-		$plugin_page == $sub_item->url &&
+		$plugin_page == $sub_item->slug &&
 		(
-			$item->url == $self_type ||
-			$item->url == $self ||
+			$item->slug == $self_type ||
+			$item->slug == $self ||
 			!file_exists( $menu_file )
 		)
 	)
@@ -91,24 +91,24 @@ function _admin_submenu_is_current( $sub_item, $item ) {
 function _admin_submenu_get_url( $sub_item, $item, $admin_is_parent ) {
 	$menu_file = _admin_menu_get_menu_file( $item );
 
-	$menu_hook = get_plugin_page_hook( $sub_item->url, $item->url );
+	$menu_hook = get_plugin_page_hook( $sub_item->slug, $item->slug );
 
 	$sub_file = _admin_menu_get_menu_file( $sub_item );
 
-	if ( !empty( $menu_hook ) || ( 'index.php' != $sub_item->url && file_exists( WP_PLUGIN_DIR . "/$sub_file" ) ) ) {
+	if ( !empty( $menu_hook ) || ( 'index.php' != $sub_item->slug && file_exists( WP_PLUGIN_DIR . "/$sub_file" ) ) ) {
 		if (
-			( !$admin_is_parent && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) && !is_dir( WP_PLUGIN_DIR . "/{$item->url}" ) )
+			( !$admin_is_parent && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) && !is_dir( WP_PLUGIN_DIR . "/{$item->slug}" ) )
 			|| file_exists( $menu_file )
 		) {
-			$base = $item->url;
+			$base = $item->slug;
 		} else {
 			$base = 'admin.php';
 		}
 
-		return add_query_arg( 'page', $sub_item->url, $base );
+		return add_query_arg( 'page', $sub_item->slug, $base );
 	}
 
-	return $sub_item->url;
+	return $sub_item->slug;
 }
 
 /**
@@ -185,11 +185,11 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 		if ( $submenu_as_parent && ! empty( $submenu_items ) ) {
 			$first_submenu = reset( $submenu_items );
 
-			$menu_hook = get_plugin_page_hook( $first_submenu->url, $item->url );
+			$menu_hook = get_plugin_page_hook( $first_submenu->slug, $item->slug );
 			$url = _admin_menu_get_url( $menu_hook, $first_submenu, $admin_is_parent );
 		}
-		elseif ( ! empty( $item->url ) && current_user_can( $item->cap ) ) {
-			$menu_hook = get_plugin_page_hook( $item->url, 'admin.php' );
+		elseif ( ! empty( $item->slug ) && current_user_can( $item->cap ) ) {
+			$menu_hook = get_plugin_page_hook( $item->slug, 'admin.php' );
 			$url = _admin_menu_get_url( $menu_hook, $item, $admin_is_parent );
 		}
 

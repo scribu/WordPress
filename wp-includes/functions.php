@@ -2467,7 +2467,7 @@ function wp_widgets_add_menu() {
 	$parent->insert_after( 'themes.php', array(
 		'title' => __( 'Widgets' ),
 		'cap' => 'edit_theme_options',
-		'url' => 'widgets.php'
+		'slug' => 'widgets.php'
 	) );
 }
 

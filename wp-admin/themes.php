@@ -154,21 +154,21 @@ $customize_title = sprintf( __( 'Customize &#8220;%s&#8221;' ), $ct->display('Na
 	$options = array();
 	$parent_menu = $admin_menu->get( 'appearance' );
 	foreach ( $parent_menu->get_children() as $item ) {
-		if ( 'themes.php' == $item->url || 'theme-editor.php' == $item->url )
+		if ( 'themes.php' == $item->slug || 'theme-editor.php' == $item->slug )
 			continue;
 
 		if ( !current_user_can( $item->cap ) )
 			continue;
 
 		$class = '';
-		if ( ( $self == $item->url && empty($parent_file) ) ||
-			 ( $parent_file && ($item->url == $parent_file) ) )
+		if ( ( $self == $item->slug && empty($parent_file) ) ||
+			 ( $parent_file && ($item->slug == $parent_file) ) )
 			$class = ' class="current"';
 
-		if ( file_exists( ABSPATH . 'wp-admin/' . $item->url ) ) {
-			$url = $item->url;
+		if ( file_exists( ABSPATH . 'wp-admin/' . $item->slug ) ) {
+			$url = $item->slug;
 		} else {
-			$url = 'themes.php?page=' . $item->url;
+			$url = 'themes.php?page=' . $item->slug;
 		}
 
 		$options[] = "<a href='$url'$class>{$item->title}</a>";

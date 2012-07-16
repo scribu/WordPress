@@ -12,7 +12,7 @@ $admin_menu->append( array(
 	'title' => __( 'Dashboard' ),
 	'cap' => 'read',
 	'id' => 'dashboard',
-	'url' => 'index.php',
+	'slug' => 'index.php',
 	'_index' => 2
 ) );
 
@@ -22,7 +22,7 @@ if ( is_multisite() ) {
 	$admin_menu->add_submenu( 'dashboard', array(
 		'title' => __( 'My Sites' ),
 		'cap' => 'read',
-		'url' => 'my-sites.php',
+		'slug' => 'my-sites.php',
 		'_index' => 5
 	) );
 }
@@ -34,7 +34,7 @@ if ( ! is_multisite() ) {
 	$admin_menu->add_submenu( 'dashboard', array(
 		'title' => _admin_menu_update_count( $update_data ),
 		'cap' => array( 'update_core', 'update_plugins', 'update_themes' ),
-		'url' => 'update-core.php',
+		'slug' => 'update-core.php',
 		'_index' => 10
 	) );
 }
@@ -50,7 +50,7 @@ $admin_menu->append( array(
 	'cap' => 'edit_posts',
 	'class' => 'open-if-no-js menu-icon-post',
 	'id' => 'posts',
-	'url' => 'edit.php',
+	'slug' => 'edit.php',
 	'_index' => 5
 ) );
 
@@ -60,7 +60,7 @@ $admin_menu->append( array(
 		/* translators: add new post */
 		'title' => _x( 'Add New', 'post' ),
 		'cap' => 'edit_posts',
-		'url' => 'post-new.php',
+		'slug' => 'post-new.php',
 		'_index' => 10
 	) );
 
@@ -70,7 +70,7 @@ $admin_menu->append( array(
 	'title' => __( 'Media' ),
 	'cap' => 'upload_files',
 	'id' => 'media',
-	'url' => 'upload.php',
+	'slug' => 'upload.php',
 	'_index' => 10
 ) );
 
@@ -80,7 +80,7 @@ $admin_menu->append( array(
 		/* translators: add new file */
 		'title' => _x( 'Add New', 'file' ),
 		'cap' => 'upload_files',
-		'url' => 'media-new.php',
+		'slug' => 'media-new.php',
 		'_index' => 10
 	) );
 
@@ -88,7 +88,7 @@ $admin_menu->append( array(
 	'title' => __( 'Links' ),
 	'cap' => 'manage_links',
 	'id' => 'links',
-	'url' => 'link-manager.php',
+	'slug' => 'link-manager.php',
 	'_index' => 15
 ) );
 
@@ -98,14 +98,14 @@ $admin_menu->append( array(
 		/* translators: add new link */
 		'title' => _x( 'Add New', 'link' ),
 		'cap' => 'manage_links',
-		'url' => 'link-add.php',
+		'slug' => 'link-add.php',
 		'_index' => 10
 	) );
 
 	$admin_menu->add_submenu( 'links', array(
 		'title' => __( 'Link Categories' ),
 		'cap' => 'manage_categories',
-		'url' => 'edit-tags.php?taxonomy=link_category',
+		'slug' => 'edit-tags.php?taxonomy=link_category',
 		'_index' => 15
 	) );
 
@@ -114,7 +114,7 @@ $admin_menu->append( array(
 	'cap' => 'edit_pages',
 	'class' => 'menu-icon-page',
 	'id' => 'pages',
-	'url' => 'edit.php?post_type=page',
+	'slug' => 'edit.php?post_type=page',
 	'_index' => 20
 ) );
 
@@ -124,7 +124,7 @@ $admin_menu->append( array(
 		/* translators: add new link */
 		'title' => _x( 'Add New', 'page' ),
 		'cap' => 'edit_pages',
-		'url' => 'post-new.php?post_type=page',
+		'slug' => 'post-new.php?post_type=page',
 		'_index' => 10
 	) );
 
@@ -134,7 +134,7 @@ $admin_menu->append( array(
 	'title' => _admin_menu_comment_count( wp_count_comments()->moderated ),
 	'cap' => 'edit_posts',
 	'id' => 'comments',
-	'url' => 'edit-comments.php',
+	'slug' => 'edit-comments.php',
 	'_index' => 25
 ) );
 
@@ -149,7 +149,7 @@ $admin_menu->append( array(
 $admin_menu->append( array(
 	'title' => __('Appearance'),
 	'cap' => array( 'switch_themes', 'edit_theme_options' ),
-	'url' => 'themes.php',
+	'slug' => 'themes.php',
 	'id' => 'appearance',
 	'_index' => 60
 ) );
@@ -160,7 +160,7 @@ $admin_menu->append( array(
 		$admin_menu->add_submenu( 'appearance', array(
 			'title' => __('Menus'),
 			'cap' => array( 'switch_themes', 'edit_theme_options' ),
-			'url' => 'nav-menus.php',
+			'slug' => 'nav-menus.php',
 			'_index' => 10
 		) );
 	}
@@ -169,7 +169,7 @@ $admin_menu->append( array(
 		$admin_menu->add_submenu( 'appearance', array(
 			'title' => _x('Editor', 'theme editor'),
 			'cap' => 'edit_themes',
-			'url' => 'theme-editor.php',
+			'slug' => 'theme-editor.php',
 			'_index' => 15
 		) );
 	}
@@ -187,7 +187,7 @@ if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
 $admin_menu->append( array(
 	'title' => $plugin_title,
 	'cap' => 'activate_plugins',
-	'url' => 'plugins.php',
+	'slug' => 'plugins.php',
 	'id' => 'plugins',
 	'_index' => 65
 ) );
@@ -199,14 +199,14 @@ $admin_menu->append( array(
 			/* translators: add new plugin */
 			'title' => _x('Add New', 'plugin'),
 			'cap' => 'install_plugins',
-			'url' => 'plugin-install.php',
+			'slug' => 'plugin-install.php',
 			'_index' => 10
 		) );
 
 		$admin_menu->add_submenu( 'plugins', array(
 			'title' => _x('Editor', 'plugin editor'),
 			'cap' => 'edit_plugins',
-			'url' => 'plugin-editor.php',
+			'slug' => 'plugin-editor.php',
 			'_index' => 15
 		) );
 	}
@@ -217,7 +217,7 @@ if ( current_user_can('list_users') ) {
 	$admin_menu->append( array(
 		'title' => __('Users'),
 		'cap' => 'list_users',
-		'url' => 'users.php',
+		'slug' => 'users.php',
 		'id' => 'users',
 		'_index' => 70
 	) );
@@ -225,7 +225,7 @@ if ( current_user_can('list_users') ) {
 	$admin_menu->append( array(
 		'title' => __('Profile'),
 		'cap' => 'read',
-		'url' => 'profile.php',
+		'slug' => 'profile.php',
 		'id' => 'users',
 		'_index' => 70
 	) );
@@ -239,14 +239,14 @@ if ( current_user_can('list_users') ) {
 	$admin_menu->add_submenu( 'users', array(
 		'title' => _x('Add New', 'user'),
 		'cap' => array( 'create_users', 'promote_users' ),
-		'url' => 'user-new.php',
+		'slug' => 'user-new.php',
 		'_index' => 10
 	) );
 
 	$admin_menu->add_submenu( 'users', array(
 		'title' => __('Your Profile'),
 		'cap' => 'read',
-		'url' => 'profile.php',
+		'slug' => 'profile.php',
 		'_index' => 15
 	) );
 } else {
@@ -257,7 +257,7 @@ if ( current_user_can('list_users') ) {
 	$admin_menu->add_submenu( 'users', array(
 		'title' => _x('Add New', 'user'),
 		'cap' => array( 'create_users', 'promote_users' ),
-		'url' => 'user-new.php',
+		'slug' => 'user-new.php',
 		'_index' => 10
 	) );
 }
@@ -265,7 +265,7 @@ if ( current_user_can('list_users') ) {
 $admin_menu->append( array(
 	'title' => __('Tools'),
 	'cap' => 'edit_posts',
-	'url' => 'tools.php',
+	'slug' => 'tools.php',
 	'id' => 'tools',
 	'_index' => 75
 ) );
@@ -275,14 +275,14 @@ $admin_menu->append( array(
 	$admin_menu->add_submenu( 'tools', array(
 		'title' => __('Import'),
 		'cap' => 'import',
-		'url' => 'import.php',
+		'slug' => 'import.php',
 		'_index' => 10
 	) );
 
 	$admin_menu->add_submenu( 'tools', array(
 		'title' => __('Export'),
 		'cap' => 'export',
-		'url' => 'export.php',
+		'slug' => 'export.php',
 		'_index' => 15
 	) );
 
@@ -290,7 +290,7 @@ $admin_menu->append( array(
 		$admin_menu->add_submenu( 'tools', array(
 			'title' => __('Delete Site'),
 			'cap' => 'manage_options',
-			'url' => 'ms-delete-site.php',
+			'slug' => 'ms-delete-site.php',
 			'_index' => 25
 		) );
 	}
@@ -299,7 +299,7 @@ $admin_menu->append( array(
 		$admin_menu->add_submenu( 'tools', array(
 			'title' => __('Network Setup'),
 			'cap' => 'manage_options',
-			'url' => 'network.php',
+			'slug' => 'network.php',
 			'_index' => 50
 		) );
 	}
@@ -307,7 +307,7 @@ $admin_menu->append( array(
 $admin_menu->append( array(
 	'title' => __('Settings'),
 	'cap' => 'manage_options',
-	'url' => 'options-general.php',
+	'slug' => 'options-general.php',
 	'id' => 'settings',
 	'_index' => 80
 ) );
@@ -317,42 +317,42 @@ $admin_menu->append( array(
 	$admin_menu->add_submenu( 'settings', array(
 		'title' => __('Writing'),
 		'cap' => 'manage_options',
-		'url' => 'options-writing.php',
+		'slug' => 'options-writing.php',
 		'_index' => 15
 	) );
 
 	$admin_menu->add_submenu( 'settings', array(
 		'title' => __('Reading'),
 		'cap' => 'manage_options',
-		'url' => 'options-reading.php',
+		'slug' => 'options-reading.php',
 		'_index' => 20
 	) );
 
 	$admin_menu->add_submenu( 'settings', array(
 		'title' => __('Discussion'),
 		'cap' => 'manage_options',
-		'url' => 'options-writing.php',
+		'slug' => 'options-writing.php',
 		'_index' => 25
 	) );
 
 	$admin_menu->add_submenu( 'settings', array(
 		'title' => __('Media'),
 		'cap' => 'manage_options',
-		'url' => 'options-media.php',
+		'slug' => 'options-media.php',
 		'_index' => 30
 	) );
 
 	$admin_menu->add_submenu( 'settings', array(
 		'title' => __('Privacy'),
 		'cap' => 'manage_options',
-		'url' => 'options-privacy.php',
+		'slug' => 'options-privacy.php',
 		'_index' => 35
 	) );
 
 	$admin_menu->add_submenu( 'settings', array(
 		'title' => __('Permalinks'),
 		'cap' => 'manage_options',
-		'url' => 'options-permalink.php',
+		'slug' => 'options-permalink.php',
 		'_index' => 40
 	) );
 

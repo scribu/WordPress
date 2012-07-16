@@ -237,13 +237,12 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 
 <div id="adminmenuback"></div>
 <div id="adminmenuwrap">
-<div id="adminmenushadow"></div>
-<ul id="adminmenu" role="navigation">
+	<div id="adminmenushadow"></div>
 
+	<ul id="adminmenu" role="navigation">
 <?php
-_wp_menu_output( $admin_menu );
-do_action( 'adminmenu' );
-
+	_wp_menu_output( $admin_menu );
+	do_action( 'adminmenu' );
 ?>
-</ul>
+	</ul>
 </div>

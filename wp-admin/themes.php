@@ -150,36 +150,32 @@ $customize_title = sprintf( __( 'Customize &#8220;%s&#8221;' ), $ct->display('Na
 		<?php theme_update_available( $ct ); ?>
 	</div>
 
-	<?php
-	// Pretend you didn't see this.
+<?php
 	$options = array();
-	if ( is_array( $submenu ) && isset( $submenu['themes.php'] ) ) {
-		foreach ( (array) $submenu['themes.php'] as $item) {
-			$class = '';
-			if ( 'themes.php' == $item[2] || 'theme-editor.php' == $item[2] )
-				continue;
-			// 0 = name, 1 = capability, 2 = file
-			if ( ( strcmp($self, $item[2]) == 0 && empty($parent_file)) || ($parent_file && ($item[2] == $parent_file)) )
-				$class = ' class="current"';
-			if ( !empty($submenu[$item[2]]) ) {
-				$submenu[$item[2]] = array_values($submenu[$item[2]]); // Re-index.
-				$menu_hook = get_plugin_page_hook($submenu[$item[2]][0][2], $item[2]);
-				if ( file_exists(WP_PLUGIN_DIR . "/{$submenu[$item[2]][0][2]}") || !empty($menu_hook))
-					$options[] = "<a href='admin.php?page={$submenu[$item[2]][0][2]}'$class>{$item[0]}</a>";
-				else
-					$options[] = "<a href='{$submenu[$item[2]][0][2]}'$class>{$item[0]}</a>";
-			} else if ( current_user_can($item[1]) ) {
-				if ( file_exists(ABSPATH . 'wp-admin/' . $item[2]) ) {
-					$options[] = "<a href='{$item[2]}'$class>{$item[0]}</a>";
-				} else {
-					$options[] = "<a href='themes.php?page={$item[2]}'$class>{$item[0]}</a>";
-				}
-			}
+	$parent_menu = $admin_menu->get( 'appearance' );
+	foreach ( $parent_menu->get_children() as $item ) {
+		if ( 'themes.php' == $item->url || 'theme-editor.php' == $item->url )
+			continue;
+
+		if ( !current_user_can( $item->cap ) )
+			continue;
+
+		$class = '';
+		if ( ( $self == $item->url && empty($parent_file) ) ||
+			 ( $parent_file && ($item->url == $parent_file) ) )
+			$class = ' class="current"';
+
+		if ( file_exists( ABSPATH . 'wp-admin/' . $item->url ) ) {
+			$url = $item->url;
+		} else {
+			$url = 'themes.php?page=' . $item->url;
 		}
+
+		$options[] = "<a href='$url'$class>{$item->title}</a>";
 	}
 
 	if ( $options || current_user_can( 'edit_theme_options' ) ) :
-	?>
+?>
 	<div class="theme-options">
 		<?php if ( current_user_can( 'edit_theme_options' ) ) : ?>
 		<a id="customize-current-theme-link" href="<?php echo wp_customize_url(); ?>" class="load-customize hide-if-no-customize" title="<?php echo esc_attr( $customize_title ); ?>"><?php _e( 'Customize' ); ?></a>

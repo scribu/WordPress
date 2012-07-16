@@ -240,7 +240,7 @@ if ( current_user_can('list_users') ) {
 	$admin_menu->add_submenu( 'users', array(
 		'title' => _x('Add New', 'user'),
 		'cap' => array( 'create_users', 'promote_users' ),
-		'url' => 'users.php',
+		'url' => 'user-new.php',
 		'_index' => 10
 	) );
 
@@ -257,8 +257,8 @@ if ( current_user_can('list_users') ) {
 
 	$admin_menu->add_submenu( 'users', array(
 		'title' => _x('Add New', 'user'),
-		'cap' => current_user_can('create_users') ? 'create_users' : 'promote_users',
-		'url' => 'users.php',
+		'cap' => array( 'create_users', 'promote_users' ),
+		'url' => 'user-new.php',
 		'_index' => 10
 	) );
 }

@@ -174,14 +174,18 @@ $admin_menu->append( array(
 		) );
 	}
 
-$count = '';
 if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
+
 	if ( ! isset( $update_data ) )
 		$update_data = wp_get_update_data();
+
+	$plugin_title = _admin_menu_plugin_update_count( $update_data );
+} else {
+	$plugin_title = __( 'Plugins' );
 }
 
 $admin_menu->append( array(
-	'title' => _admin_menu_plugin_update_count( $update_data ),
+	'title' => $plugin_title,
 	'cap' => 'activate_plugins',
 	'url' => 'plugins.php',
 	'id' => 'plugins',
@@ -207,7 +211,7 @@ $admin_menu->append( array(
 		) );
 	}
 
-unset( $update_data, $count );
+unset( $update_data, $plugin_title );
 
 if ( current_user_can('list_users') ) {
 	$admin_menu->append( array(

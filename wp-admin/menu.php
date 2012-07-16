@@ -32,7 +32,7 @@ if ( ! is_multisite() || is_super_admin() )
 
 if ( ! is_multisite() ) {
 	$admin_menu->add_submenu( 'dashboard', array(
-		'title' => sprintf( __('Updates %s'), "<span class='update-plugins count-{$update_data['counts']['total']}' title='{$update_data['title']}'><span class='update-count'>" . number_format_i18n($update_data['counts']['total']) . "</span></span>" ),
+		'title' => _admin_menu_update_count( $update_data ),
 		'cap' => array( 'update_core', 'update_plugins', 'update_themes' ),
 		'url' => 'update-core.php',
 		'_index' => 10
@@ -130,10 +130,8 @@ $admin_menu->append( array(
 
 	$admin_menu->_add_tax_submenus( 'pages', 'page' );
 
-$awaiting_mod = wp_count_comments()->moderated;
-
 $admin_menu->append( array(
-	'title' => sprintf( __('Comments %s'), "<span class='awaiting-mod count-$awaiting_mod'><span class='pending-count'>" . number_format_i18n($awaiting_mod) . "</span></span>" ),
+	'title' => _admin_menu_comment_count( wp_count_comments()->moderated ),
 	'cap' => 'edit_posts',
 	'id' => 'comments',
 	'url' => 'edit-comments.php',
@@ -141,8 +139,6 @@ $admin_menu->append( array(
 ) );
 
 	$admin_menu->add_first_submenu( 'comments', __( 'All Comments' ), 0 );
-
-unset($awaiting_mod);
 
 $admin_menu->append( array(
 	'id' => 'separator2',
@@ -182,11 +178,10 @@ $count = '';
 if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
 	if ( ! isset( $update_data ) )
 		$update_data = wp_get_update_data();
-	$count = "<span class='update-plugins count-{$update_data['counts']['plugins']}'><span class='plugin-count'>" . number_format_i18n($update_data['counts']['plugins']) . "</span></span>";
 }
 
 $admin_menu->append( array(
-	'title' => sprintf( __('Plugins %s'), $count ),
+	'title' => _admin_menu_plugin_update_count( $update_data ),
 	'cap' => 'activate_plugins',
 	'url' => 'plugins.php',
 	'id' => 'plugins',

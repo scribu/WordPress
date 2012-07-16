@@ -255,6 +255,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 		}
 	}
 
+	/** @private */
 	function _loop( $callback ) {
 		foreach ( $this->get_children() as $item ) {
 			if ( !isset( $item->url ) )
@@ -263,5 +264,40 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 			call_user_func( $callback, $item, $this );
 		}
 	}
+}
+
+
+// TODO: use in admin bar?
+/** @private */
+function _admin_menu_comment_count( $awaiting_mod ) {
+	$count = sprintf(
+		"<span class='awaiting-mod count-%s'><span class='pending-count'>%s</span></span>",
+		$awaiting_mod,
+		number_format_i18n( $awaiting_mod )
+	);
+
+	return sprintf( __('Comments %s'), $count );
+}
+
+/** @private */
+function _admin_menu_update_count( $update_data ) {
+	$count = sprintf(
+		"<span class='update-plugins count-%s' title='%s'><span class='update-count'>%s</span></span>",
+		$update_data['counts']['total'],
+		$update_data['title'],
+		number_format_i18n( $update_data['counts']['total'] )
+	);
+
+	return sprintf( __( 'Updates %s' ), $count );
+}
+
+function _admin_menu_plugin_update_count( $update_data ) {
+	$count = sprintf(
+		"<span class='update-plugins count-%s'><span class='plugin-count'>%s</span></span>",
+		$update_data['counts']['plugins'],
+		number_format_i18n( $update_data['counts']['plugins'] )
+	);
+
+	return sprintf( __( 'Plugins %s' ), $count );
 }
 

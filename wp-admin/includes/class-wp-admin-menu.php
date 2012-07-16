@@ -301,3 +301,13 @@ function _admin_menu_plugin_update_count( $update_data ) {
 	return sprintf( __( 'Plugins %s' ), $count );
 }
 
+function _admin_menu_theme_update_count( $update_data ) {
+	$count = sprintf(
+		"<span class='update-plugins count-%s'><span class='theme-count'>%s</span></span>",
+		$update_data['counts']['themes'],
+		number_format_i18n( $update_data['counts']['themes'] )
+	);
+
+	return sprintf( __( 'Themes %s' ), $count );
+}
+

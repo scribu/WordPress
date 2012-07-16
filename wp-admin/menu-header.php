@@ -35,7 +35,10 @@ function _admin_menu_get_menu_file( $item ) {
 function _admin_menu_get_url( $menu_hook, $item, &$admin_is_parent ) {
 	$menu_file = _admin_menu_get_menu_file( $item );
 
-	if ( !empty( $menu_hook ) || ( 'index.php' != $item->url && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) ) ) {
+	if (
+		!empty( $menu_hook ) ||
+		( 'index.php' != $item->url && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) )
+	) {
 		$admin_is_parent = true;
 		$url = 'admin.php?page=' . $item->url;
 	} else {
@@ -43,6 +46,27 @@ function _admin_menu_get_url( $menu_hook, $item, &$admin_is_parent ) {
 	}
 
 	return $url;
+}
+
+function _admin_submenu_get_url( $sub_item, $item, $menu_file, $admin_is_parent ) {
+	$menu_hook = get_plugin_page_hook( $sub_item->url, $item->url );
+
+	$sub_file = _admin_menu_get_menu_file( $sub_item );
+
+	if ( !empty( $menu_hook ) || ( 'index.php' != $sub_item->url && file_exists( WP_PLUGIN_DIR . "/$sub_file" ) ) ) {
+		if (
+			( !$admin_is_parent && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) && !is_dir( WP_PLUGIN_DIR . "/{$item->url}" ) )
+			|| file_exists( $menu_file )
+		) {
+			$base = $item->url;
+		} else {
+			$base = 'admin.php';
+		}
+
+		return add_query_arg( 'page', $sub_item->url, $base );
+	}
+
+	return $sub_item->url;
 }
 
 /**
@@ -162,23 +186,10 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 
 				$class = $class ? ' class="' . join( ' ', $class ) . '"' : '';
 
-				$menu_hook = get_plugin_page_hook($sub_item->url, $item->url);
+				$title = wptexturize( $sub_item->title );
 
-				$sub_file = _admin_menu_get_menu_file( $sub_item );
-
-				$title = wptexturize($sub_item->title);
-
-				if ( !empty( $menu_hook ) || ( 'index.php' != $sub_item->url && file_exists( WP_PLUGIN_DIR . "/$sub_file" ) ) ) {
-					// If admin.php is the current page or if the parent exists as a file in the plugins or admin dir
-					if ( (!$admin_is_parent && file_exists(WP_PLUGIN_DIR . "/$menu_file") && !is_dir(WP_PLUGIN_DIR . "/{$item->url}")) || file_exists($menu_file) )
-						$sub_item_url = add_query_arg( array('page' => $sub_item->url), $item->url );
-					else
-						$sub_item_url = add_query_arg( array('page' => $sub_item->url), 'admin.php' );
-
-					$sub_item_url = esc_url( $sub_item_url );
-				} else {
-					$sub_item_url = esc_url( $sub_item->url );
-				}
+				$sub_item_url = _admin_submenu_get_url( $sub_item, $item, $menu_file, $admin_is_parent );
+				$sub_item_url = esc_url( $sub_item_url );
 
 				echo "<li$class><a href='{$sub_item_url}'$class $aria_attributes>$title</a></li>";
 			}

@@ -387,7 +387,6 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 		else
 			return $null;
 	} elseif ( is_object($post) && empty($post->filter) ) {
-		_get_post_ancestors($post);
 		$_post = sanitize_post($post, 'raw');
 		wp_cache_add($post->ID, $_post, 'posts');
 	} elseif ( is_object($post) && 'raw' == $post->filter ) {
@@ -403,7 +402,6 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 			$_post = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->posts WHERE ID = %d LIMIT 1", $post_id));
 			if ( ! $_post )
 				return $null;
-			_get_post_ancestors($_post);
 			$_post = sanitize_post($_post, 'raw');
 			wp_cache_add($_post->ID, $_post, 'posts');
 		}
@@ -413,6 +411,8 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 		$_post = sanitize_post($_post, $filter);
 
 	if ( $output == OBJECT ) {
+		if ( is_a( $_post, 'stdClass' ) )
+			$_post = new _WP_Post_Wrapper( $_post );
 		return $_post;
 	} elseif ( $output == ARRAY_A ) {
 		$__post = get_object_vars($_post);
@@ -426,6 +426,43 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 }
 
 /**
+ * Wrapper class to preserve back-compat for $post->ancestors
+ *
+ * @since 3.4.0
+ */
+class _WP_Post_Wrapper {
+
+	private $post;
+
+	function __construct( $post ) {
+		$this->post = $post;
+	}
+
+	function __isset( $key ) {
+		if ( 'ancestors' == $key )
+			return true;
+
+		return isset( $this->post->$key );
+	}
+
+	function &__get( $key ) {
+		if ( 'ancestors' == $key )
+			$ref = get_post_ancestors( $this->post );
+		else
+			$ref = &$this->post->$key;
+
+		return $ref;
+	}
+
+	function __set( $key, $value ) {
+		if ( 'ancestors' == $key )
+			return;
+
+		$this->post->$key = $value;
+	}
+}
+
+/**
  * Retrieve ancestors of a post.
  *
  * @since 2.5.0
@@ -433,16 +470,31 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
  * @param int|object $post Post ID or post object
  * @return array Ancestor IDs or empty array if none are found.
  */
-function get_post_ancestors($post) {
-	$post = get_post($post);
+function get_post_ancestors( $post ) {
+	$post = get_post( $post );
 
-	if ( ! isset( $post->ancestors ) )
-		_get_post_ancestors( $post );
+	if ( !$post )
+		return false;
 
-	if ( ! empty( $post->ancestors ) )
-		return $post->ancestors;
+	if ( ! $ancestors = wp_cache_get( $post->ID, 'post_ancestors' ) ) {
+		$ancestors = array();
 
-	return array();
+		if ( !empty( $post->post_parent ) && $post->ID != $post->post_parent ) {
+			$id = $ancestors[] = $post->post_parent;
+
+			while ( $ancestor = get_post( $id ) ) {
+				// Loop detection: If the ancestor has been seen before, break.
+				if ( empty( $ancestor->post_parent ) || ( $ancestor->post_parent == $post->ID ) || in_array( $ancestor->post_parent, $ancestors ) )
+					break;
+
+				$id = $ancestors[] = $ancestor->post_parent;
+			}
+		}
+
+		wp_cache_add( $post->ID, $ancestors, 'post_ancestors' );
+	}
+
+	return $ancestors;
 }
 
 /**
@@ -3348,13 +3400,8 @@ function get_page_uri($page) {
 		$page = get_page($page);
 	$uri = $page->post_name;
 
-	// A page cannot be it's own parent.
-	if ( $page->post_parent == $page->ID )
-		return $uri;
-
-	while ($page->post_parent != 0) {
-		$page = get_page($page->post_parent);
-		$uri = $page->post_name . "/" . $uri;
+	foreach ( $page->ancestors as $parent ) {
+		$uri = get_page($parent)->post_name . "/" . $uri;
 	}
 
 	return $uri;
@@ -4609,45 +4656,6 @@ function _publish_post_hook($post_id) {
  */
 function _save_post_hook( $post_id, $post ) {
 	clean_post_cache( $post );
-}
-
-/**
- * Retrieve post ancestors and append to post ancestors property.
- *
- * Will only retrieve ancestors once, if property is already set, then nothing
- * will be done. If there is not a parent post, or post ID and post parent ID
- * are the same then nothing will be done.
- *
- * The parameter is passed by reference, so nothing needs to be returned. The
- * property will be updated and can be referenced after the function is
- * complete. The post parent will be an ancestor and the parent of the post
- * parent will be an ancestor. There will only be two ancestors at the most.
- *
- * @since 2.5.0
- * @access private
- * @uses $wpdb
- *
- * @param object $_post Post data.
- * @return null When nothing needs to be done.
- */
-function _get_post_ancestors(&$_post) {
-	global $wpdb;
-
-	if ( isset($_post->ancestors) )
-		return;
-
-	$_post->ancestors = array();
-
-	if ( empty($_post->post_parent) || $_post->ID == $_post->post_parent )
-		return;
-
-	$id = $_post->ancestors[] = (int) $_post->post_parent;
-	while ( $ancestor = $wpdb->get_var( $wpdb->prepare("SELECT `post_parent` FROM $wpdb->posts WHERE ID = %d LIMIT 1", $id) ) ) {
-		// Loop detection: If the ancestor has been seen before, break.
-		if ( ( $ancestor == $_post->ID ) || in_array($ancestor,  $_post->ancestors) )
-			break;
-		$id = $_post->ancestors[] = (int) $ancestor;
-	}
 }
 
 /**

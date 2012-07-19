@@ -447,7 +447,7 @@ class WP_Post {
 
 	function &__get( $key ) {
 		if ( 'ancestors' == $key )
-			$ref = get_post_ancestors( $this->post );
+			$ref = get_post_ancestors( $this );
 		else
 			$ref = &$this->post->$key;
 
@@ -471,8 +471,6 @@ class WP_Post {
  * @return array Ancestor IDs or empty array if none are found.
  */
 function get_post_ancestors( $post ) {
-	$post = get_post( $post );
-
 	if ( !$post )
 		return false;
 

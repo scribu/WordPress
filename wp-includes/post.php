@@ -412,7 +412,7 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 
 	if ( $output == OBJECT ) {
 		if ( is_a( $_post, 'stdClass' ) )
-			$_post = new _WP_Post_Wrapper( $_post );
+			$_post = new WP_Post( $_post );
 		return $_post;
 	} elseif ( $output == ARRAY_A ) {
 		$__post = get_object_vars($_post);
@@ -430,7 +430,7 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
  *
  * @since 3.4.0
  */
-class _WP_Post_Wrapper {
+class WP_Post {
 
 	private $post;
 

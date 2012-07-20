@@ -9,16 +9,14 @@ class WP_Admin_Menu_Item {
 
 	function __construct( $payload ) {
 
-		if ( !isset( $payload['id'] ) ) {
+		if ( !isset( $payload['id'] ) )
 			$payload['id'] = $payload['slug'];
-		}
 
 		if ( isset( $payload['cap'] ) )
 			$payload['cap'] = $this->convert_caps( $payload['cap'] );
 
-		foreach ( $payload as $key => $value ) {
+		foreach ( $payload as $key => $value )
 			$this->$key = $value;
-		}
 
 		$this->children = array();
 	}
@@ -193,7 +191,6 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 
 		foreach ( $cpt_list as $ptype ) {
 			$ptype_obj = get_post_type_object( $ptype );
-			// TODO: use in includes/menu.php
 			$ptype_for_id = sanitize_html_class( $ptype );
 
 			if ( is_string( $ptype_obj->menu_icon ) ) {
@@ -291,6 +288,7 @@ function _admin_menu_update_count( $update_data ) {
 	return sprintf( __( 'Updates %s' ), $count );
 }
 
+/** @private */
 function _admin_menu_plugin_update_count( $update_data ) {
 	$count = sprintf(
 		"<span class='update-plugins count-%s'><span class='plugin-count'>%s</span></span>",
@@ -301,6 +299,7 @@ function _admin_menu_plugin_update_count( $update_data ) {
 	return sprintf( __( 'Plugins %s' ), $count );
 }
 
+/** @private */
 function _admin_menu_theme_update_count( $update_data ) {
 	$count = sprintf(
 		"<span class='update-plugins count-%s'><span class='theme-count'>%s</span></span>",

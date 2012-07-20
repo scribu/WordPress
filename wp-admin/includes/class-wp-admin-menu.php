@@ -191,6 +191,10 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 
 		foreach ( $cpt_list as $ptype ) {
 			$ptype_obj = get_post_type_object( $ptype );
+
+			if ( true !== $ptype_obj->show_in_menu )
+				continue; // handled in _add_post_type_submenus()
+
 			$ptype_for_id = sanitize_html_class( $ptype );
 
 			if ( is_string( $ptype_obj->menu_icon ) ) {
@@ -201,7 +205,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 				$ptype_class = 'post';
 			}
 
-			$args =  array(
+			$args = array(
 				'title' => esc_attr( $ptype_obj->labels->menu_name ),
 				'cap' => $ptype_obj->cap->edit_posts,
 				'class' => 'menu-icon-' . $ptype_class,

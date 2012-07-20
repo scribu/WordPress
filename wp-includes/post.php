@@ -1299,23 +1299,6 @@ function _get_custom_object_labels( $object, $nohier_vs_hier_defaults ) {
 }
 
 /**
- * Adds submenus for post types.
- *
- * @access private
- * @since 3.1.0
- */
-function _add_post_type_submenus() {
-	foreach ( get_post_types( array( 'show_ui' => true ) ) as $ptype ) {
-		$ptype_obj = get_post_type_object( $ptype );
-		// Submenus only.
-		if ( ! $ptype_obj->show_in_menu || $ptype_obj->show_in_menu === true )
-			continue;
-		add_submenu_page( $ptype_obj->show_in_menu, $ptype_obj->labels->name, $ptype_obj->labels->all_items, $ptype_obj->cap->edit_posts, "edit.php?post_type=$ptype" );
-	}
-}
-add_action( 'admin_menu', '_add_post_type_submenus' );
-
-/**
  * Register support of certain features for a post type.
  *
  * All features are directly associated with a functional area of the edit screen, such as the

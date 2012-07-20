@@ -182,7 +182,8 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 		) );
 	}
 
-	function _add_cpt_menus() {
+	/** @private */
+	function _add_post_type_menus() {
 		$cpt_list = get_post_types( array(
 			'show_ui' => true,
 			'_builtin' => false,
@@ -236,6 +237,20 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 		}
 	}
 
+	/** @private */
+	function _add_post_type_submenus() {
+		foreach ( get_post_types( array( 'show_ui' => true ) ) as $ptype ) {
+			$ptype_obj = get_post_type_object( $ptype );
+
+			// Submenus only.
+			if ( ! $ptype_obj->show_in_menu || $ptype_obj->show_in_menu === true )
+				continue;
+
+			add_submenu_page( $ptype_obj->show_in_menu, $ptype_obj->labels->name, $ptype_obj->labels->all_items, $ptype_obj->cap->edit_posts, "edit.php?post_type=$ptype" );
+		}
+	}
+
+	/** @private */
 	function _add_tax_submenus( $parent_id, $ptype ) {
 		$i = 15;
 		foreach ( get_taxonomies( array(), 'objects' ) as $tax ) {

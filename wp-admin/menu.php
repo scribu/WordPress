@@ -363,7 +363,8 @@ $admin_menu->append( array(
 ) );
 
 // CPT menus need to be added later due to 'menu_position'
-$admin_menu->_add_cpt_menus();
+$admin_menu->_add_post_type_menus();
+add_action( 'admin_menu', array( $admin_menu, '_add_post_type_submenus' ), 9 );
 
 // Back-compat for old top-levels
 $_wp_real_parent_file['post.php'] = 'edit.php';
@@ -385,6 +386,6 @@ $compat = array(
 	'edit-comments' => 'comments',
 	'options-general' => 'settings',
 	'themes' => 'appearance',
-	);
+);
 
 require_once(ABSPATH . 'wp-admin/includes/menu.php');

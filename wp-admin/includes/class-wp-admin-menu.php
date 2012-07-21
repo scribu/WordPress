@@ -168,7 +168,7 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 	}
 
 	// Super-convenience method
-	function add_first_submenu( $parent_id, $title, $_index = 5 ) {
+	function add_first_submenu( $parent_id, $title ) {
 		$parent = $this->get( $parent_id );
 
 		if ( ! $parent )
@@ -178,7 +178,6 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 			'title' => $title,
 			'cap' => $parent->cap,
 			'slug' => $parent->slug,
-			'_index' => $_index
 		) );
 	}
 
@@ -213,7 +212,6 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 				'id' => 'posts-' . $ptype_for_id,
 				'slug' => "edit.php?post_type=$ptype",
 				'icon' => $admin_menu_icon,
-				'_index' => false
 			);
 
 			if ( $ptype_obj->menu_position ) {
@@ -230,7 +228,6 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 				'title' => $ptype_obj->labels->add_new,
 				'cap' => $ptype_obj->cap->edit_posts,
 				'slug' => "post-new.php?post_type=$ptype",
-				'_index' => 10
 			) );
 
 			$this->_add_tax_submenus( 'posts-' . $ptype_for_id, $ptype );
@@ -252,7 +249,6 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 
 	/** @private */
 	function _add_tax_submenus( $parent_id, $ptype ) {
-		$i = 15;
 		foreach ( get_taxonomies( array(), 'objects' ) as $tax ) {
 			if ( ! $tax->show_ui || ! in_array($ptype, (array) $tax->object_type, true) )
 				continue;
@@ -266,7 +262,6 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 				'title' => esc_attr( $tax->labels->menu_name ),
 				'cap' => $tax->cap->manage_terms,
 				'slug' => $slug,
-				'_index' => $i++
 			) );
 		}
 	}

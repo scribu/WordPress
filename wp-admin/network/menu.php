@@ -15,13 +15,11 @@ $admin_menu->append( array(
 	'cap' => 'manage_network',
 	'id' => 'dashboard',
 	'slug' => 'index.php',
-	'_index' => 2
 ) );
 
 $admin_menu->append( array(
 	'id' => 'separator1',
 	'class' => 'wp-menu-separator',
-	'_index' => 4
 ) );
 
 $admin_menu->append( array(
@@ -30,7 +28,6 @@ $admin_menu->append( array(
 	'cap' => 'manage_sites',
 	'id' => 'site',
 	'slug' => 'sites.php',
-	'_index' => 5
 ) );
 
 	$admin_menu->add_first_submenu( 'site', __( 'All Sites' ) );
@@ -40,7 +37,6 @@ $admin_menu->append( array(
 		'title' => _x( 'Add New', 'site' ),
 		'cap' => 'create_sites',
 		'slug' => 'site-new.php',
-		'_index' => 10
 	) );
 
 $admin_menu->append( array(
@@ -48,7 +44,6 @@ $admin_menu->append( array(
 	'cap' => 'manage_network_users',
 	'slug' => 'users.php',
 	'id' => 'users',
-	'_index' => 10
 ) );
 
 	$admin_menu->add_first_submenu( 'users', __( 'All Users') );
@@ -57,7 +52,6 @@ $admin_menu->append( array(
 		'title' => _x( 'Add New', 'user' ),
 		'cap' => 'create_users',
 		'slug' => 'user-new.php',
-		'_index' => 10
 	) );
 
 $update_data = wp_get_update_data();
@@ -67,7 +61,6 @@ $admin_menu->append( array(
 	'cap' => 'manage_network_themes',
 	'slug' => 'themes.php',
 	'id' => 'appearance',
-	'_index' => 15
 ) );
 
 	$admin_menu->add_first_submenu( 'appearance', __( 'Installed Themes' ) );
@@ -76,14 +69,12 @@ $admin_menu->append( array(
 		'title' => _x( 'Add New', 'theme' ),
 		'cap' => 'install_themes',
 		'slug' => 'theme-install.php',
-		'_index' => 10
 	) );
 
 	$admin_menu->add_submenu( 'appearance', array(
 		'title' => _x( 'Editor', 'theme editor' ),
 		'cap' => 'edit_themes',
 		'slug' => 'theme-editor.php',
-		'_index' => 15
 	) );
 
 $admin_menu->append( array(
@@ -91,7 +82,6 @@ $admin_menu->append( array(
 	'cap' => 'manage_network_plugins',
 	'slug' => 'plugins.php',
 	'id' => 'plugins',
-	'_index' => 20
 ) );
 
 	$admin_menu->add_first_submenu( 'plugins', __( 'Installed Plugins' ) );
@@ -100,14 +90,12 @@ $admin_menu->append( array(
 		'title' => _x( 'Add New', 'plugin' ),
 		'cap' => 'install_plugins',
 		'slug' => 'plugin-install.php',
-		'_index' => 10
 	) );
 
 	$admin_menu->add_submenu( 'plugins', array(
 		'title' => _x( 'Editor', 'plugin editor' ),
 		'cap' => 'edit_plugins',
 		'slug' => 'plugin-editor.php',
-		'_index' => 15
 	) );
 
 $admin_menu->append( array(
@@ -115,7 +103,6 @@ $admin_menu->append( array(
 	'cap' => 'manage_network_options',
 	'slug' => 'settings.php',
 	'id' => 'settings',
-	'_index' => 25
 ) );
 
 	$admin_menu->add_first_submenu( 'settings', __('Network Settings') );
@@ -124,7 +111,6 @@ $admin_menu->append( array(
 		'title' => __('Writing'),
 		'cap' => 'manage_network_options',
 		'slug' => 'setup.php',
-		'_index' => 10
 	) );
 
 $admin_menu->append( array(
@@ -133,16 +119,14 @@ $admin_menu->append( array(
 	'slug' => 'upgrade.php',
 	'class' => 'menu-icon-tools',
 	'id' => 'update',
-	'_index' => 30
 ) );
 
-	$admin_menu->add_first_submenu( 'update', __('Update Network'), 10 );
+	$admin_menu->add_first_submenu( 'update', __('Update Network') );
 
 	$admin_menu->add_submenu( 'update', array(
 		'title' => __('Available Updates'),
 		'cap' => 'update_core',
 		'slug' => 'update-core.php',
-		'_index' => 15
 	) );
 
 unset($update_data);
@@ -150,7 +134,6 @@ unset($update_data);
 $admin_menu->append( array(
 	'id' => 'separator-last',
 	'class' => 'wp-menu-separator',
-	'_index' => 99
 ) );
 
 require_once(ABSPATH . 'wp-admin/includes/menu.php');

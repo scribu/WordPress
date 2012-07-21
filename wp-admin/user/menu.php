@@ -14,13 +14,11 @@ $admin_menu->append( array(
 	'cap' => 'exist',
 	'id' => 'dashboard',
 	'slug' => 'index.php',
-	'_index' => 2
 ) );
 
 $admin_menu->append( array(
 	'id' => 'separator1',
 	'class' => 'wp-menu-separator',
-	'_index' => 4
 ) );
 
 $admin_menu->append( array(
@@ -28,13 +26,11 @@ $admin_menu->append( array(
 	'cap' => 'exist',
 	'id' => 'users',
 	'slug' => 'profile.php',
-	'_index' => 70
 ) );
 
 $admin_menu->append( array(
 	'id' => 'separator-last',
 	'class' => 'wp-menu-separator',
-	'_index' => 99
 ) );
 
 $_wp_real_parent_file['users.php'] = 'profile.php';

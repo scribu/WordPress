@@ -2645,8 +2645,7 @@ class WP_Query {
 				$this->set_found_posts( $q, $limits );
 
 				_prime_post_caches( $ids, $q['update_post_term_cache'], $q['update_post_meta_cache'] );
-
-				$this->posts = array_map( 'get_post', $ids );
+				$this->posts = $ids;
 			} else {
 				$this->found_posts = $this->max_num_pages = 0;
 				$this->posts = array();
@@ -2655,6 +2654,9 @@ class WP_Query {
 			$this->posts = $wpdb->get_results( $this->request );
 			$this->set_found_posts( $q, $limits );
 		}
+
+		// Convert to WP_Post objects
+		$this->posts = array_map( 'get_post', $this->posts );
 
 		// Raw results filter. Prior to status checks.
 		if ( !$q['suppress_filters'] )

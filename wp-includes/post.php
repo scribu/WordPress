@@ -459,6 +459,8 @@ final class WP_Post {
 
 	private $post;
 
+	public $filter;
+
 	function __construct( $post ) {
 		$this->post = $post;
 	}
@@ -472,11 +474,15 @@ final class WP_Post {
 
 	function &__get( $key ) {
 		if ( 'ancestors' == $key )
-			$ref = get_post_ancestors( $this );
+			$value = get_post_ancestors( $this );
 		else
-			$ref = &$this->post->$key;
+			$value = $this->post->$key;
 
-		return $ref;
+		if ( $this->filter ) {
+			$value = sanitize_post_field( $key, $value, $this->post->ID, $this->filter );
+		}
+
+		return $value;
 	}
 
 	function __set( $key, $value ) {

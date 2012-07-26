@@ -3451,8 +3451,10 @@ function &get_pages($args = '') {
 	$key = md5( serialize( compact(array_keys($defaults)) ) );
 	if ( $cache = wp_cache_get( 'get_pages', 'posts' ) ) {
 		if ( is_array($cache) && isset( $cache[ $key ] ) ) {
-			$pages = apply_filters('get_pages', $cache[ $key ], $r );
-			return $pages;
+			// Convert to WP_Post instances
+			$pages = array_map( 'get_post', $cache[ $key ] );
+
+			return apply_filters( 'get_pages', $pages, $r );
 		}
 	}
 
@@ -3625,6 +3627,9 @@ function &get_pages($args = '') {
 
 	$cache[ $key ] = $pages;
 	wp_cache_set( 'get_pages', $cache, 'posts' );
+
+	// Convert to WP_Post instances
+	$pages = array_map( 'get_post', $pages );
 
 	$pages = apply_filters('get_pages', $pages, $r);
 

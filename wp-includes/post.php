@@ -378,7 +378,6 @@ function get_extended($post) {
  * @return mixed Post data
  */
 function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
-	global $wpdb;
 	$null = null;
 
 	if ( empty($post) ) {
@@ -386,43 +385,23 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 			$_post = & $GLOBALS['post'];
 		else
 			return $null;
-	} elseif ( is_object($post) && empty($post->filter) ) {
-		$_post = sanitize_post($post, 'raw');
-		wp_cache_add($post->ID, $_post, 'posts');
-	} elseif ( is_object($post) && 'raw' == $post->filter ) {
-		$_post = $post;
 	} else {
-		if ( is_object($post) )
-			$post_id = $post->ID;
-		else
-			$post_id = $post;
-
-		$post_id = (int) $post_id;
-		if ( ! $_post = wp_cache_get($post_id, 'posts') ) {
-			$_post = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->posts WHERE ID = %d LIMIT 1", $post_id));
-			if ( ! $_post )
-				return $null;
-			$_post = sanitize_post($_post, 'raw');
-			wp_cache_add($_post->ID, $_post, 'posts');
-		}
+		$_post = WP_Post::get_instance( $post );
+		if ( !$_post )
+			return $null;
 	}
 
-	if ($filter != 'raw')
-		$_post = sanitize_post($_post, $filter);
+	$_post->filter = $filter;
 
-	if ( $output == OBJECT ) {
-		if ( is_a( $_post, 'stdClass' ) )
-			$_post = new WP_Post( $_post );
-		return $_post;
-	} elseif ( $output == ARRAY_A ) {
-		$__post = get_object_vars($_post);
+	if ( $output == ARRAY_A ) {
+		$__post = $_post->to_array();
 		return $__post;
 	} elseif ( $output == ARRAY_N ) {
-		$__post = array_values(get_object_vars($_post));
+		$__post = array_values($_post->to_array());
 		return $__post;
-	} else {
-		return $_post;
 	}
+
+	return $_post;
 }
 
 /**
@@ -459,20 +438,56 @@ final class WP_Post {
 
 	private $post;
 
-	public $filter;
+	public $filter = 'raw';
 
-	function __construct( $post ) {
+	public static function get_instance( $post_id ) {
+		global $wpdb;
+
+		if ( is_a( $post_id, __CLASS__ ) )
+			return $post_id;
+
+		if ( is_object( $post_id ) && isset( $post_id->ID ) )
+			$post_id = $post_id->ID;
+
+		$post_id = (int) $post_id;
+		if ( !$post_id )
+			return false;
+
+		if ( ! $_post = wp_cache_get( $post_id, 'posts' ) ) {
+			$_post = $wpdb->get_row( $wpdb->prepare( "
+				SELECT * FROM $wpdb->posts WHERE ID = %d LIMIT 1
+			", $post_id ) );
+
+			if ( ! $_post )
+				return false;
+
+			$_post = sanitize_post( $_post, 'raw' );
+			wp_cache_add( $_post->ID, $_post, 'posts' );
+		}
+
+		return new WP_Post( $_post );
+	}
+
+	private function __construct( $post ) {
 		$this->post = $post;
 	}
 
-	function __isset( $key ) {
+	public function to_array() {
+		$post = get_object_vars( $this->post );
+		$post['ancestors'] = array();
+		$post['filter'] = $this->filter;
+
+		return $post;
+	}
+
+	public function __isset( $key ) {
 		if ( 'ancestors' == $key )
 			return true;
 
 		return isset( $this->post->$key );
 	}
 
-	function &__get( $key ) {
+	public function &__get( $key ) {
 		if ( 'ancestors' == $key )
 			$value = get_post_ancestors( $this );
 		else
@@ -485,7 +500,7 @@ final class WP_Post {
 		return $value;
 	}
 
-	function __set( $key, $value ) {
+	public function __set( $key, $value ) {
 		if ( 'ancestors' == $key )
 			return;
 

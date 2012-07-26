@@ -426,7 +426,7 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 }
 
 /**
- * Wrapper class to preserve back-compat for $post->ancestors
+ * WordPress Post class.
  *
  * @since 3.5.0
  *

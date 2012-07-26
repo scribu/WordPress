@@ -455,7 +455,7 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
  * @property $comment_count;
  * @property $ancestors;
  */
-class WP_Post {
+final class WP_Post {
 
 	private $post;
 

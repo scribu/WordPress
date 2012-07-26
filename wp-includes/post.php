@@ -428,7 +428,32 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 /**
  * Wrapper class to preserve back-compat for $post->ancestors
  *
- * @since 3.4.0
+ * @since 3.5.0
+ *
+ * @property $ID;
+ * @property $post_author;
+ * @property $post_date;
+ * @property $post_date_gmt;
+ * @property $post_content;
+ * @property $post_title;
+ * @property $post_excerpt;
+ * @property $post_status;
+ * @property $comment_status;
+ * @property $ping_status;
+ * @property $post_password;
+ * @property $post_name;
+ * @property $to_ping;
+ * @property $pinged;
+ * @property $post_modified;
+ * @property $post_modified_gmt;
+ * @property $post_content_filtered;
+ * @property $post_parent;
+ * @property $guid;
+ * @property $menu_order;
+ * @property $post_type;
+ * @property $post_mime_type;
+ * @property $comment_count;
+ * @property $ancestors;
  */
 class WP_Post {
 

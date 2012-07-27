@@ -488,7 +488,10 @@ final class WP_Post {
 		if ( 'ancestors' == $key )
 			return true;
 
-		return isset( $this->post->$key );
+		if ( isset( $this->post->$key ) )
+			return true;
+
+		return metadata_exists( 'post', $this->post->ID, $key );
 	}
 
 	public function &__get( $key ) {

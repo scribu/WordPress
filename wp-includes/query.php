@@ -2643,15 +2643,15 @@ class WP_Query {
 
 			if ( $ids ) {
 				$this->set_found_posts( $q, $limits );
-
 				_prime_post_caches( $ids, $q['update_post_term_cache'], $q['update_post_meta_cache'] );
 				$this->posts = $ids;
 			} else {
-				$this->found_posts = $this->max_num_pages = 0;
 				$this->posts = array();
+				$this->found_posts = $this->max_num_pages = 0;
 			}
 		} else {
 			$this->posts = $wpdb->get_results( $this->request );
+			update_post_caches( $this->posts, 'any', $q['update_post_term_cache'], $q['update_post_meta_cache'] );
 			$this->set_found_posts( $q, $limits );
 		}
 

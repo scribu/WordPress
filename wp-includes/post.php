@@ -510,6 +510,10 @@ final class WP_Post {
 
 		$this->post->$key = $value;
 	}
+
+	public function __unset( $key ) {
+		unset( $this->post->$key );
+	}
 }
 
 /**

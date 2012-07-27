@@ -492,10 +492,13 @@ final class WP_Post {
 	}
 
 	public function &__get( $key ) {
-		if ( 'ancestors' == $key )
+		if ( 'ancestors' == $key ) {
 			$value = get_post_ancestors( $this );
-		else
+		} elseif ( isset( $this->post->$key ) ) {
 			$value = $this->post->$key;
+		} else {
+			$value = get_post_meta( $this->post->ID, $key, true );
+		}
 
 		if ( $this->filter ) {
 			$value = sanitize_post_field( $key, $value, $this->post->ID, $this->filter );

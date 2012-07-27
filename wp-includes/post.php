@@ -375,21 +375,31 @@ function get_extended($post) {
  * @param int|object $post Post ID or post object.
  * @param string $output Optional, default is Object. Either OBJECT, ARRAY_A, or ARRAY_N.
  * @param string $filter Optional, default is raw.
- * @return mixed Post data
+ * @return mixed Post data or null on failure
  */
 function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 	$null = null;
 
-	if ( empty($post) ) {
-		if ( isset($GLOBALS['post']) )
-			$_post = & $GLOBALS['post'];
-		else
-			return $null;
+	if ( empty( $post ) && isset( $GLOBALS['post'] ) ) {
+		$_post = & $GLOBALS['post'];
+	} elseif ( is_a( $post, 'WP_Post' ) ) {
+		$_post = $post;
+	} elseif ( is_object( $post ) ) {
+		if ( empty( $post->filter ) ) {
+			$_post = sanitize_post( $post, 'raw' );
+			wp_cache_add( $post->ID, $_post, 'posts' );
+			$_post = new WP_Post( $_post );
+		} elseif ( 'raw' == $post->filter ) {
+			$_post = new WP_Post( $post );
+		} else {
+			$_post = WP_Post::get_instance( $post->ID );
+		}
 	} else {
 		$_post = WP_Post::get_instance( $post );
-		if ( !$_post )
-			return $null;
 	}
+
+	if ( !$_post )
+		return $null;
 
 	$_post->filter = $filter;
 
@@ -397,7 +407,7 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 		$__post = $_post->to_array();
 		return $__post;
 	} elseif ( $output == ARRAY_N ) {
-		$__post = array_values($_post->to_array());
+		$__post = array_values( $_post->to_array() );
 		return $__post;
 	}
 
@@ -443,12 +453,6 @@ final class WP_Post {
 	public static function get_instance( $post_id ) {
 		global $wpdb;
 
-		if ( is_a( $post_id, __CLASS__ ) )
-			return $post_id;
-
-		if ( is_object( $post_id ) && isset( $post_id->ID ) )
-			$post_id = $post_id->ID;
-
 		$post_id = (int) $post_id;
 		if ( !$post_id )
 			return false;
@@ -468,7 +472,7 @@ final class WP_Post {
 		return new WP_Post( $_post );
 	}
 
-	private function __construct( $post ) {
+	public function __construct( $post ) {
 		$this->post = $post;
 	}
 

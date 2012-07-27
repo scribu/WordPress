@@ -556,16 +556,12 @@ function get_post_ancestors( $post ) {
  * @param string $field Post field name
  * @param id $post Post ID
  * @param string $context Optional. How to filter the field. Default is display.
- * @return WP_Error|string Value in post field or WP_Error on failure
+ * @return bool|string False on failure or returns the value in post field
  */
 function get_post_field( $field, $post, $context = 'display' ) {
-	$post = (int) $post;
 	$post = get_post( $post );
 
-	if ( is_wp_error($post) )
-		return $post;
-
-	if ( !is_object($post) )
+	if ( !$post )
 		return '';
 
 	if ( !isset($post->$field) )

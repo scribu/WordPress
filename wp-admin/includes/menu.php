@@ -1,18 +1,25 @@
 <?php
 
 /**
- * Build Plugin Administration Menus.
+ * Build Administration Menus.
  *
  * @package WordPress
  * @subpackage Administration
  */
 
-if ( is_network_admin() )
+require ABSPATH . 'wp-admin/includes/class-wp-admin-menu.php';
+require ABSPATH . 'wp-admin/includes/menu-functions.php';
+
+if ( is_network_admin() ) {
+	require ABSPATH . 'wp-admin/network/menu.php';
 	do_action( '_network_admin_menu' );
-elseif ( is_user_admin() )
+} elseif ( is_user_admin() ) {
+	require ABSPATH . 'wp-admin/user/menu.php';
 	do_action( '_user_admin_menu' );
-else
+} else {
+	require ABSPATH . 'wp-admin/menu.php';
 	do_action( '_admin_menu' );
+}
 
 $_wp_submenu_nopriv = array();
 $_wp_menu_nopriv = array();

@@ -1,5 +1,94 @@
 <?php
 
+/** @private */
+function _add_post_type_menus() {
+	global $admin_menu;
+
+	$cpt_list = get_post_types( array(
+		'show_ui' => true,
+		'_builtin' => false,
+		'show_in_menu' => true
+	) );
+
+	foreach ( $cpt_list as $ptype ) {
+		$ptype_obj = get_post_type_object( $ptype );
+
+		if ( true !== $ptype_obj->show_in_menu )
+			continue; // handled in _add_post_type_submenus()
+
+		$ptype_for_id = sanitize_html_class( $ptype );
+
+		if ( is_string( $ptype_obj->menu_icon ) ) {
+			$admin_menu_icon = esc_url( $ptype_obj->menu_icon );
+			$ptype_class = $ptype_for_id;
+		} else {
+			$admin_menu_icon = 'div';
+			$ptype_class = 'post';
+		}
+
+		$args = array(
+			'title' => esc_attr( $ptype_obj->labels->menu_name ),
+			'cap' => $ptype_obj->cap->edit_posts,
+			'class' => 'menu-icon-' . $ptype_class,
+			'id' => 'posts-' . $ptype_for_id,
+			'slug' => "edit.php?post_type=$ptype",
+			'icon' => $admin_menu_icon,
+		);
+
+		if ( $ptype_obj->menu_position ) {
+			$before = $ptype_obj->menu_position;
+		} else {
+			$before = 'separator2';
+		}
+
+		$admin_menu->insert_before( $before, $args );
+
+		$admin_menu->add_first_submenu( 'posts-' . $ptype_for_id, $ptype_obj->labels->all_items );
+
+		$admin_menu->add_submenu( 'posts-' . $ptype_for_id, array(
+			'title' => $ptype_obj->labels->add_new,
+			'cap' => $ptype_obj->cap->edit_posts,
+			'slug' => "post-new.php?post_type=$ptype",
+		) );
+
+		_add_tax_submenus( 'posts-' . $ptype_for_id, $ptype );
+	}
+}
+
+/** @private */
+function _add_post_type_submenus() {
+	foreach ( get_post_types( array( 'show_ui' => true ) ) as $ptype ) {
+		$ptype_obj = get_post_type_object( $ptype );
+
+		// Submenus only.
+		if ( ! $ptype_obj->show_in_menu || $ptype_obj->show_in_menu === true )
+			continue;
+
+		add_submenu_page( $ptype_obj->show_in_menu, $ptype_obj->labels->name, $ptype_obj->labels->all_items, $ptype_obj->cap->edit_posts, "edit.php?post_type=$ptype" );
+	}
+}
+
+/** @private */
+function _add_tax_submenus( $parent_id, $ptype ) {
+	global $admin_menu;
+
+	foreach ( get_taxonomies( array(), 'objects' ) as $tax ) {
+		if ( ! $tax->show_ui || ! in_array($ptype, (array) $tax->object_type, true) )
+			continue;
+
+		$slug = 'edit-tags.php?taxonomy=' . $tax->name;
+
+		if ( 'post' != $ptype )
+			$slug .= '&amp;post_type=' . $ptype;
+
+		$admin_menu->add_submenu( $parent_id, array(
+			'title' => esc_attr( $tax->labels->menu_name ),
+			'cap' => $tax->cap->manage_terms,
+			'slug' => $slug,
+		) );
+	}
+}
+
 // TODO: use in admin bar?
 /** @private */
 function _admin_menu_comment_count( $awaiting_mod ) {

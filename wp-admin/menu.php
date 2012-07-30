@@ -58,7 +58,7 @@ $admin_menu->append( array(
 		'slug' => 'post-new.php',
 	) );
 
-	$admin_menu->_add_tax_submenus( 'posts', 'post' );
+	_add_tax_submenus( 'posts', 'post' );
 
 $admin_menu->append( array(
 	'title' => __( 'Media' ),
@@ -115,7 +115,7 @@ $admin_menu->append( array(
 		'slug' => 'post-new.php?post_type=page',
 	) );
 
-	$admin_menu->_add_tax_submenus( 'pages', 'page' );
+	_add_tax_submenus( 'pages', 'page' );
 
 $admin_menu->append( array(
 	'title' => _admin_menu_comment_count( wp_count_comments()->moderated ),
@@ -324,8 +324,8 @@ $admin_menu->append( array(
 ) );
 
 // CPT menus need to be added later due to 'menu_position'
-$admin_menu->_add_post_type_menus();
-add_action( 'admin_menu', array( $admin_menu, '_add_post_type_submenus' ), 9 );
+_add_post_type_menus();
+add_action( 'admin_menu', '_add_post_type_submenus', 9 );
 
 // Back-compat for old top-levels
 $_wp_real_parent_file['post.php'] = 'edit.php';

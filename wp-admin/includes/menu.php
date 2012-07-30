@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Build Administration Menus.
+ * Build Administration Menu.
  *
  * @package WordPress
  * @subpackage Administration

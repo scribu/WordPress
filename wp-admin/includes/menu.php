@@ -7,8 +7,6 @@
  * @subpackage Administration
  */
 
-require ABSPATH . 'wp-admin/includes/menu-functions.php';
-
 if ( is_network_admin() )
 	do_action( '_network_admin_menu' );
 elseif ( is_user_admin() )

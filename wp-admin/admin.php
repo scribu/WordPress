@@ -99,7 +99,8 @@ if ( isset( $_REQUEST['taxonomy'] ) && taxonomy_exists( $_REQUEST['taxonomy'] ) 
 else
 	$taxnow = '';
 
-require(ABSPATH . 'wp-admin/includes/class-wp-admin-menu.php');
+require ABSPATH . 'wp-admin/includes/class-wp-admin-menu.php';
+require ABSPATH . 'wp-admin/includes/menu-functions.php';
 
 if ( WP_NETWORK_ADMIN )
 	require(ABSPATH . 'wp-admin/network/menu.php');

@@ -135,5 +135,3 @@ $admin_menu->append( array(
 	'id' => 'separator-last',
 	'class' => 'wp-menu-separator',
 ) );
-
-require_once(ABSPATH . 'wp-admin/includes/menu.php');

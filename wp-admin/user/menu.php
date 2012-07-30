@@ -35,5 +35,3 @@ $admin_menu->append( array(
 
 $_wp_real_parent_file['users.php'] = 'profile.php';
 $compat = array();
-
-require_once(ABSPATH . 'wp-admin/includes/menu.php');

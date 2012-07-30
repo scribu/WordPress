@@ -17,7 +17,6 @@ else
 $_wp_submenu_nopriv = array();
 $_wp_menu_nopriv = array();
 
-
 _each_admin_menu_item( '_generate_admin_page_hooks' );
 _each_admin_menu_item( '_check_admin_submenu_privs' );
 

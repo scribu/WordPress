@@ -348,5 +348,3 @@ $compat = array(
 	'options-general' => 'settings',
 	'themes' => 'appearance',
 );
-
-require_once(ABSPATH . 'wp-admin/includes/menu.php');

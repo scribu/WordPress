@@ -180,15 +180,5 @@ class WP_Admin_Menu extends WP_Admin_Menu_Item {
 			'slug' => $parent->slug,
 		) );
 	}
-
-	/** @private */
-	function _loop( $callback ) {
-		foreach ( $this->get_children() as $item ) {
-			if ( !isset( $item->slug ) )
-				continue;
-
-			call_user_func( $callback, $item, $this );
-		}
-	}
 }
 

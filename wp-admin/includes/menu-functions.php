@@ -135,6 +135,22 @@ function _admin_menu_theme_update_count( $update_data ) {
 	return sprintf( __( 'Themes %s' ), $count );
 }
 
+/**
+ * Loop through every admin menu item and subitem, except separators
+ *
+ * @private
+ */
+function _each_admin_menu_item( $callback ) {
+	global $admin_menu;
+
+	foreach ( $admin_menu->get_children() as $item ) {
+		if ( !isset( $item->slug ) )
+			continue;
+
+		call_user_func( $callback, $item, $admin_menu );
+	}
+}
+
 // Create list of page plugin hook names.
 function _generate_admin_page_hooks( $menu_item, $admin_menu ) {
 	global $admin_page_hooks;

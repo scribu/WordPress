@@ -119,6 +119,21 @@ function add_cssclass($add, $class) {
 function _add_admin_menu_classes( $admin_menu ) {
 	$items = array_values( $admin_menu->get_children() );
 
+	// Remove any duplicated separators
+	$separator_found = false;
+	foreach ( $admin_menu->get_children() as $menu_item ) {
+		if ( 'wp-menu-separator' == $menu_item->class ) {
+			if ( !$separator_found ) {
+				$separator_found = true;
+			} else {
+				$admin_menu->remove( $menu_item->id );
+				$separator_found = false;
+			}
+		} else {
+			$separator_found = false;
+		}
+	}
+
 	// Remove the last menu item if it is a separator.
 	$last = end( $items );
 	if ( 'wp-menu-separator' == $last->class ) {

@@ -121,24 +121,8 @@ function _check_admin_menu_privs( $menu_item, $admin_menu ) {
 	}
 }
 
-// Remove any duplicated separators
-$separator_found = false;
-foreach ( $admin_menu->get_children() as $menu_item ) {
-	if ( 'wp-menu-separator' == $menu_item->class ) {
-		if ( !$separator_found ) {
-			$separator_found = true;
-		} else {
-			$admin_menu->remove( $menu_item->id );
-			$separator_found = false;
-		}
-	} else {
-		$separator_found = false;
-	}
-}
-unset($separator_found, $menu_item);
-
 if ( !user_can_access_admin_page() ) {
-	do_action('admin_page_access_denied');
+	do_action( 'admin_page_access_denied' );
 	wp_die( __('You do not have sufficient permissions to access this page.') );
 }
 

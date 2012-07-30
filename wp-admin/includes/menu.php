@@ -137,51 +137,8 @@ foreach ( $admin_menu->get_children() as $menu_item ) {
 }
 unset($separator_found, $menu_item);
 
-function add_cssclass($add, $class) {
-	$class = empty($class) ? $add : $class .= ' ' . $add;
-	return $class;
-}
-
-function _add_admin_menu_classes( $admin_menu ) {
-	$items = array_values( $admin_menu->get_children() );
-
-	// Remove the last menu item if it is a separator.
-	$last = end( $items );
-	if ( 'wp-menu-separator' == $last->class ) {
-		$admin_menu->remove( $last->id );
-		array_pop( $items );
-	}
-
-	$first = false;
-
-	foreach ( $items as $i => $menu_item ) {
-		if ( 'dashboard' == $menu_item->id ) { // dashboard is always shown/single
-			$menu_item->class = add_cssclass( 'menu-top-first', $menu_item->class );
-			continue;
-		}
-
-		if ( 'wp-menu-separator' == $menu_item->class ) {
-			$first = true;
-			$previous = $items[$i-1];
-			$previous->class = add_cssclass( 'menu-top-last', $previous->class );
-			continue;
-		}
-
-		if ( $first ) {
-			$menu_item->class = add_cssclass( 'menu-top-first', $menu_item->class );
-			$first = false;
-		}
-	}
-
-	$last = end( $items );
-
-	$last->class = add_cssclass( 'menu-top-last', $last->class );
-}
-
 if ( !user_can_access_admin_page() ) {
 	do_action('admin_page_access_denied');
 	wp_die( __('You do not have sufficient permissions to access this page.') );
 }
-
-_add_admin_menu_classes( $admin_menu );
 

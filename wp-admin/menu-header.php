@@ -111,6 +111,47 @@ function _admin_submenu_get_url( $sub_item, $item, $admin_is_parent ) {
 	return $sub_item->slug;
 }
 
+function add_cssclass($add, $class) {
+	$class = empty($class) ? $add : $class .= ' ' . $add;
+	return $class;
+}
+
+function _add_admin_menu_classes( $admin_menu ) {
+	$items = array_values( $admin_menu->get_children() );
+
+	// Remove the last menu item if it is a separator.
+	$last = end( $items );
+	if ( 'wp-menu-separator' == $last->class ) {
+		$admin_menu->remove( $last->id );
+		array_pop( $items );
+	}
+
+	$first = false;
+
+	foreach ( $items as $i => $menu_item ) {
+		if ( 'dashboard' == $menu_item->id ) { // dashboard is always shown/single
+			$menu_item->class = add_cssclass( 'menu-top-first', $menu_item->class );
+			continue;
+		}
+
+		if ( 'wp-menu-separator' == $menu_item->class ) {
+			$first = true;
+			$previous = $items[$i-1];
+			$previous->class = add_cssclass( 'menu-top-last', $previous->class );
+			continue;
+		}
+
+		if ( $first ) {
+			$menu_item->class = add_cssclass( 'menu-top-first', $menu_item->class );
+			$first = false;
+		}
+	}
+
+	$last = end( $items );
+
+	$last->class = add_cssclass( 'menu-top-last', $last->class );
+}
+
 /**
  * Display menu.
  *
@@ -244,6 +285,7 @@ function _wp_menu_output( $menu, $submenu_as_parent = true ) {
 
 	<ul id="adminmenu" role="navigation">
 <?php
+	_add_admin_menu_classes( $admin_menu );
 	_wp_menu_output( $admin_menu );
 	do_action( 'adminmenu' );
 ?>

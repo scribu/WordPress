@@ -473,52 +473,36 @@ final class WP_Post {
 	}
 
 	public function __construct( $post ) {
-		$this->post = $post;
-	}
-
-	public function to_array() {
-		$post = get_object_vars( $this->post );
-		$post['ancestors'] = array();
-		$post['filter'] = $this->filter;
-
-		return $post;
+		foreach ( get_object_vars( $post ) as $key => $value )
+			$this->$key = $value;
 	}
 
 	public function __isset( $key ) {
 		if ( 'ancestors' == $key )
 			return true;
 
-		if ( isset( $this->post->$key ) )
-			return true;
-
-		return metadata_exists( 'post', $this->post->ID, $key );
+		return metadata_exists( 'post', $this->ID, $key );
 	}
 
 	public function &__get( $key ) {
 		if ( 'ancestors' == $key ) {
 			$value = get_post_ancestors( $this );
-		} elseif ( isset( $this->post->$key ) ) {
-			$value = $this->post->$key;
 		} else {
-			$value = get_post_meta( $this->post->ID, $key, true );
+			$value = get_post_meta( $this->ID, $key, true );
 		}
 
 		if ( $this->filter ) {
-			$value = sanitize_post_field( $key, $value, $this->post->ID, $this->filter );
+			$value = sanitize_post_field( $key, $value, $this->ID, $this->filter );
 		}
 
 		return $value;
 	}
 
-	public function __set( $key, $value ) {
-		if ( 'ancestors' == $key )
-			return;
+	public function to_array() {
+		$post = get_object_vars( $this );
+		$post['ancestors'] = array();
 
-		$this->post->$key = $value;
-	}
-
-	public function __unset( $key ) {
-		unset( $this->post->$key );
+		return $post;
 	}
 }
 

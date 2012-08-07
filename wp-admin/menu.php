@@ -323,7 +323,7 @@ $admin_menu->append( array(
 	'class' => 'wp-menu-separator',
 ) );
 
-// CPT menus need to be added later due to 'menu_position'
+// CPT menus need to be added later due to the 'menu_position' arg in register_post_type()
 _add_post_type_menus();
 add_action( 'admin_menu', '_add_post_type_submenus', 9 );
 

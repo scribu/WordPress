@@ -925,9 +925,9 @@ function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $func
 	);
 
 	if ( null === $before )
-		$admin_menu->append( $args );
+		$admin_menu->append( $menu_args );
 	else
-		$admin_menu->insert_before( $before, $args );
+		$admin_menu->insert_before( $before, $menu_args );
 
 	return $hookname;
 }

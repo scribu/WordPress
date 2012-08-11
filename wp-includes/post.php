@@ -401,7 +401,8 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
 	if ( !$_post )
 		return $null;
 
-	$_post->filter = $filter;
+	if ( $filter != 'raw' )
+		$_post = sanitize_post( $_post, $filter );
 
 	if ( $output == ARRAY_A ) {
 		$__post = $_post->to_array();
@@ -446,9 +447,7 @@ function &get_post(&$post, $output = OBJECT, $filter = 'raw') {
  */
 final class WP_Post {
 
-	private $post;
-
-	public $filter = 'raw';
+	public $filter;
 
 	public static function get_instance( $post_id ) {
 		global $wpdb;

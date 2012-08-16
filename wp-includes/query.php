@@ -2651,7 +2651,6 @@ class WP_Query {
 			}
 		} else {
 			$this->posts = $wpdb->get_results( $this->request );
-			update_post_caches( $this->posts, 'any', $q['update_post_term_cache'], $q['update_post_meta_cache'] );
 			$this->set_found_posts( $q, $limits );
 		}
 

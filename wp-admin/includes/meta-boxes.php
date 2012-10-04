@@ -1011,8 +1011,6 @@ function link_advanced_meta_box($link) {
  * @since 2.9.0
  */
 function post_thumbnail_meta_box( $post ) {
-	global $_wp_additional_image_sizes;
-
 	?><script type="text/javascript">
 	jQuery( function($) {
 		var $element     = $('#select-featured-image'),
@@ -1073,7 +1071,7 @@ function post_thumbnail_meta_box( $post ) {
 
 	<?php
 	$thumbnail_id   = get_post_meta( $post->ID, '_thumbnail_id', true );
-	$thumbnail_size = isset( $_wp_additional_image_sizes['post-thumbnail'] ) ? 'post-thumbnail' : 'medium';
+	$thumbnail_size = image_size_exists( 'post-thumbnail' ) ? 'post-thumbnail' : 'medium';
 	$thumbnail_html = wp_get_attachment_image( $thumbnail_id, $thumbnail_size );
 
 	$classes = empty( $thumbnail_id ) ? '' : 'has-featured-image';

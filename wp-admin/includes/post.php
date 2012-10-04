@@ -1130,7 +1130,7 @@ function get_sample_permalink_html( $id, $new_title = null, $new_slug = null, $s
  * @return string html
  */
 function _wp_post_thumbnail_html( $thumbnail_id = null, $post = null ) {
-	global $content_width, $_wp_additional_image_sizes;
+	global $content_width;
 
 	$post = get_post( $post );
 
@@ -1141,7 +1141,7 @@ function _wp_post_thumbnail_html( $thumbnail_id = null, $post = null ) {
 	if ( $thumbnail_id && get_post( $thumbnail_id ) ) {
 		$old_content_width = $content_width;
 		$content_width = 266;
-		if ( !isset( $_wp_additional_image_sizes['post-thumbnail'] ) )
+		if ( !image_size_exists( 'post-thumbnail' ) )
 			$thumbnail_html = wp_get_attachment_image( $thumbnail_id, array( $content_width, $content_width ) );
 		else
 			$thumbnail_html = wp_get_attachment_image( $thumbnail_id, 'post-thumbnail' );

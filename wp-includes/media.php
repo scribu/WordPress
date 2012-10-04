@@ -158,29 +158,19 @@ function image_downsize($id, $size = 'medium') {
 }
 
 /**
- * Registers a new image size
+ * Register a new image size.
  *
  * @since 2.9.0
  *
- * TODO: deprecate
+ * @param string $name The new image size name
+ * @param array $args The new image size parameters
  */
-function add_image_size( $name, $width = 0, $height = 0, $crop = false ) {
-	register_image_size( $name, compact( 'width', 'height', 'crop' ) );
-}
-
-/**
- * Register a new image size.
- *
- * @since 3.6.0
- *
- * @param string $name Image size name
- * @param array|string $args See optional args description above
- */
-function register_image_size( $name, $args ) {
-	global $wp_image_sizes;
-
-	if ( !is_array( $wp_image_sizes ) )
-		$wp_image_sizes = array();
+function add_image_size( $name, $args ) {
+	if ( !is_array( $args ) ) {
+		$argv = func_get_args();
+		$name = array_shift( $argv );
+		$args = wp_numeric_to_assoc( $argv, array( 'width', 'height', 'crop' ) );
+	}
 
 	$defaults = array(
 		'width' => 0,
@@ -189,7 +179,7 @@ function register_image_size( $name, $args ) {
 		'pregenerate' => true
 	);
 
-	$args = wp_parse_args( $args, $defaults );
+	$args = array_merge( $defaults, $args );
 
 	$size = new stdClass;
 
@@ -198,6 +188,11 @@ function register_image_size( $name, $args ) {
 	$size->height = absint( $args['height'] );
 	$size->crop = (bool) $args['crop'];
 	$size->pregenerate = (bool) $args['pregenerate'];
+
+	global $wp_image_sizes;
+
+	if ( !is_array( $wp_image_sizes ) )
+		$wp_image_sizes = array();
 
 	$wp_image_sizes[ $name ] = $size;
 }
@@ -260,7 +255,7 @@ function create_initial_image_sizes() {
 			'pregenerate' => true
 		);
 
-		register_image_size( $s, $args );
+		add_image_size( $s, $args );
 	}
 }
 add_action( 'init', 'create_initial_image_sizes', 0 ); // highest priority
@@ -271,7 +266,7 @@ add_action( 'init', 'create_initial_image_sizes', 0 ); // highest priority
  * @since 2.9.0
  */
 function set_post_thumbnail_size( $width = 0, $height = 0, $crop = false ) {
-	register_image_size( 'post-thumbnail', array(
+	add_image_size( 'post-thumbnail', array(
 		'width' => $width,
 		'height' => $height,
 		'crop' => $crop,

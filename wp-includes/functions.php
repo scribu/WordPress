@@ -2597,6 +2597,28 @@ function wp_list_pluck( $list, $field ) {
 }
 
 /**
+ * Convert a numeric array to an associative array, based on a list of keys.
+ *
+ * @since 3.6.0
+ *
+ * @param array $list Numeric array to be converted
+ * @param array $keys A list of keys
+ * @return array Resulting array
+ */
+function wp_numeric_to_assoc( $vector, $keys ) {
+	$assoc = array();
+
+	foreach ( $keys as $i => $key ) {
+		if ( isset( $vector[ $i ] ) )
+			$assoc[ $key ] = $vector[ $i ];
+		else
+			break;
+	}
+
+	return $assoc;
+}
+
+/**
  * Determines if Widgets library should be loaded.
  *
  * Checks to make sure that the widgets library hasn't already been loaded. If
@@ -3794,3 +3816,4 @@ function wp_is_stream( $path ) {
 function wp_checkdate( $month, $day, $year, $source_date ) {
 	return apply_filters( 'wp_checkdate', checkdate( $month, $day, $year ), $source_date );
 }
+

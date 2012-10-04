@@ -271,7 +271,12 @@ add_action( 'init', 'create_initial_image_sizes', 0 ); // highest priority
  * @since 2.9.0
  */
 function set_post_thumbnail_size( $width = 0, $height = 0, $crop = false ) {
-	add_image_size( 'post-thumbnail', $width, $height, $crop );
+	register_image_size( 'post-thumbnail', array(
+		'width' => $width,
+		'height' => $height,
+		'crop' => $crop,
+		'pregenerate' => false
+	) );
 }
 
 /**

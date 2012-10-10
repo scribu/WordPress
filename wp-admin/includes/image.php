@@ -76,7 +76,7 @@ function wp_generate_attachment_metadata( $attachment_id, $file ) {
 
 		$sizes = array();
 
-		foreach ( get_intermediate_image_sizes( array( 'pregenerate' => true ), 'objects' ) as $name => $size ) {
+		foreach ( get_intermediate_image_sizes( array(), 'objects' ) as $name => $size ) {
 			$sizes[ $name ] = array(
 				'width' => $size->width,
 				'height' => $size->height,

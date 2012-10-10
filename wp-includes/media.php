@@ -176,7 +176,6 @@ function add_image_size( $name, $args ) {
 		'width' => 0,
 		'height' => 0,
 		'crop' => false,
-		'pregenerate' => true
 	);
 
 	$args = array_merge( $defaults, $args );
@@ -187,7 +186,6 @@ function add_image_size( $name, $args ) {
 	$size->width = absint( $args['width'] );
 	$size->height = absint( $args['height'] );
 	$size->crop = (bool) $args['crop'];
-	$size->pregenerate = (bool) $args['pregenerate'];
 
 	global $wp_image_sizes;
 
@@ -252,7 +250,6 @@ function create_initial_image_sizes() {
 			'width' => get_option( "{$s}_size_w" ),
 			'height' => get_option( "{$s}_size_h" ),
 			'crop' => get_option( "{$s}_crop" ),
-			'pregenerate' => true
 		);
 
 		add_image_size( $s, $args );
@@ -270,7 +267,6 @@ function set_post_thumbnail_size( $width = 0, $height = 0, $crop = false ) {
 		'width' => $width,
 		'height' => $height,
 		'crop' => $crop,
-		'pregenerate' => false
 	) );
 }
 

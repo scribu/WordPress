@@ -198,7 +198,7 @@ function add_image_size( $name, $args ) {
 /**
  * Get a registered image size object by name.
  *
- * @since 3.6.0
+ * @since 3.5.0
  *
  * @param string $image_size Image size name
  * @return object
@@ -215,7 +215,7 @@ function get_image_size( $image_size ) {
 /**
  * Checks if an image size is registered.
  *
- * @since 3.6.0
+ * @since 3.5.0
  *
  * @param string $image_size Image size name
  * @return bool

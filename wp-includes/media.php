@@ -223,14 +223,18 @@ function image_size_exists( $image_size ) {
  *
  * @since 3.0.0
  *
+ * @param string $output What to return. 'names' just returns the name of the size.
+ * @param array $filters key=>value pairs used for filtering the list of sizes.
+ * @param string $operator The operator used for combining the filters. Can be 'and', 'or' and 'not'.
+ *
  * @return array
  */
-function get_intermediate_image_sizes( $args = array(), $output = 'names', $operator = 'and' ) {
+function get_intermediate_image_sizes( $output = 'names', $filters = array(), $operator = 'and' ) {
 	global $_wp_additional_image_sizes;
 
 	$field = ( 'names' == $output ) ? 'name' : false;
 
-	$list = wp_filter_object_list( $_wp_additional_image_sizes, $args, $operator, $field );
+	$list = wp_filter_object_list( $_wp_additional_image_sizes, $filters, $operator, $field );
 
 	if ( 'names' == $output )
 		return apply_filters( 'intermediate_image_sizes', $list );

@@ -74,16 +74,7 @@ function wp_generate_attachment_metadata( $attachment_id, $file ) {
 		// Make the file path relative to the upload dir
 		$metadata['file'] = _wp_relative_upload_path($file);
 
-		$sizes = array();
-
-		foreach ( get_intermediate_image_sizes( array(), 'objects' ) as $name => $size ) {
-			$sizes[ $name ] = array(
-				'width' => $size->width,
-				'height' => $size->height,
-				'crop' => $size->crop,
-			);
-		}
-
+		$sizes = get_intermediate_image_sizes( array(), 'full' );
 		$sizes = apply_filters( 'intermediate_image_sizes_advanced', $sizes );
 
 		$editor = WP_Image_Editor::get_instance( $file );

@@ -166,6 +166,8 @@ function image_downsize($id, $size = 'medium') {
  * @param array $args The new image size parameters
  */
 function add_image_size( $name, $args ) {
+	global $_wp_additional_image_sizes;
+
 	if ( !is_array( $args ) ) {
 		$argv = func_get_args();
 		$name = array_shift( $argv );
@@ -178,21 +180,13 @@ function add_image_size( $name, $args ) {
 		'crop' => false,
 	);
 
-	$args = array_merge( $defaults, $args );
+	$size = array_merge( $defaults, $args );
 
-	$size = new stdClass;
+	$size['width'] = absint( $size['width'] );
+	$size['height'] = absint( $size['height'] );
+	$size['crop'] = (bool) $size['height'];
 
-	$size->name = $name;
-	$size->width = absint( $args['width'] );
-	$size->height = absint( $args['height'] );
-	$size->crop = (bool) $args['crop'];
-
-	global $wp_image_sizes;
-
-	if ( !is_array( $wp_image_sizes ) )
-		$wp_image_sizes = array();
-
-	$wp_image_sizes[ $name ] = $size;
+	$_wp_additional_image_sizes[ $name ] = $size;
 }
 
 /**
@@ -201,15 +195,15 @@ function add_image_size( $name, $args ) {
  * @since 3.5.0
  *
  * @param string $image_size Image size name
- * @return object
+ * @return bool|array
  */
 function get_image_size( $image_size ) {
-	global $wp_image_sizes;
+	global $_wp_additional_image_sizes;
 
-	if ( empty( $wp_image_sizes[ $image_size ] ) )
-		return null;
+	if ( !isset( $_wp_additional_image_sizes[ $image_size ] ) )
+		return false;
 
-	return $wp_image_sizes[ $image_size ];
+	return $_wp_additional_image_sizes[ $image_size ];
 }
 
 /**
@@ -232,11 +226,11 @@ function image_size_exists( $image_size ) {
  * @return array
  */
 function get_intermediate_image_sizes( $args = array(), $output = 'names', $operator = 'and' ) {
-	global $wp_image_sizes;
+	global $_wp_additional_image_sizes;
 
 	$field = ( 'names' == $output ) ? 'name' : false;
 
-	$list = wp_filter_object_list( $wp_image_sizes, $args, $operator, $field );
+	$list = wp_filter_object_list( $_wp_additional_image_sizes, $args, $operator, $field );
 
 	if ( 'names' == $output )
 		return apply_filters( 'intermediate_image_sizes', $list );

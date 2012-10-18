@@ -283,7 +283,7 @@ function get_current_url() {
  * @return bool
  */
 function is_login_page() {
-	$current_url = remove_query_arg( array( 'redirect_to', 'loggedout', 'action' ), get_current_url() );
+	$current_url = remove_query_arg( array( 'redirect_to', 'reauth', 'loggedout', 'action' ), get_current_url() );
 
 	return wp_login_url() == $current_url;
 }
@@ -296,9 +296,11 @@ function is_login_page() {
  * @return bool
  */
 function is_register_page() {
-	$current_url = remove_query_arg( array( 'redirect_to', 'loggedout', 'action' ), get_current_url() );
+	$current_url = remove_query_arg( array( 'action', 'redirect_to', 'loggedout', ), get_current_url() );
 
-	return wp_register_url() == $current_url;
+	$register_url = remove_query_arg( array( 'action' ), wp_register_url() );
+
+	return $current_url == $current_url;
 }
 
 /**

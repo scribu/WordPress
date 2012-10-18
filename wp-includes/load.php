@@ -573,6 +573,23 @@ function wp_clone( $object ) {
 }
 
 /**
+ * Whether the current request is for a login page
+ *
+ * @since 3.5.0
+ *
+ * @return bool
+ */
+function is_login() {
+	$current_url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+
+	$current_url = remove_query_arg( array( 'redirect_to', 'loggedout', 'action' ), $current_url );
+
+	$login_url = wp_login_url();
+
+	return $login_url == $current_url;
+}
+
+/**
  * Whether the current request is for a network or blog admin page
  *
  * Does not inform on whether the user is an admin! Use capability checks to

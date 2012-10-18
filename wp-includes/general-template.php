@@ -265,6 +265,43 @@ function wp_login_url($redirect = '', $force_reauth = false) {
 }
 
 /**
+ * Return the full URL of the current page
+ *
+ * @since 3.5.0
+ *
+ * @return string
+ */
+function get_current_url() {
+	return set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+}
+
+/**
+ * Whether the current request is for a login page
+ *
+ * @since 3.5.0
+ *
+ * @return bool
+ */
+function is_login_page() {
+	$current_url = remove_query_arg( array( 'redirect_to', 'loggedout', 'action' ), get_current_url() );
+
+	return wp_login_url() == $current_url;
+}
+
+/**
+ * Whether the current request is for the registration page
+ *
+ * @since 3.5.0
+ *
+ * @return bool
+ */
+function is_register_page() {
+	$current_url = remove_query_arg( array( 'redirect_to', 'loggedout', 'action' ), get_current_url() );
+
+	return wp_register_url() == $current_url;
+}
+
+/**
  * Provides a simple login form for use anywhere within WordPress. By default, it echoes
  * the HTML immediately. Pass array('echo'=>false) to return the string instead.
  *

@@ -300,7 +300,7 @@ function is_register_page() {
 
 	$register_url = remove_query_arg( array( 'action' ), wp_register_url() );
 
-	return $current_url == $current_url;
+	return $current_url == $register_url;
 }
 
 /**

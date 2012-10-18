@@ -197,6 +197,21 @@ function wp_loginout($redirect = '', $echo = true) {
 }
 
 /**
+ * Returns the user registration URL
+ *
+ * Returns the URL that allows the user to log in to the site
+ *
+ * @since 3.5.0
+ * @uses site_url() To generate the log in URL
+ * @uses apply_filters() calls 'register_url' hook on final url
+ *
+ * @return string
+ */
+function wp_register_url($redirect = '') {
+	return apply_filters( 'register_url', site_url( 'wp-login.php?action=register', 'login' ), $redirect );
+}
+
+/**
  * Returns the Log Out URL.
  *
  * Returns the URL that allows the user to log out of the site
@@ -338,7 +353,7 @@ function wp_register( $before = '<li>', $after = '</li>', $echo = true ) {
 
 	if ( ! is_user_logged_in() ) {
 		if ( get_option('users_can_register') )
-			$link = $before . '<a href="' . site_url('wp-login.php?action=register', 'login') . '">' . __('Register') . '</a>' . $after;
+			$link = $before . '<a href="' . wp_register_url() . '">' . __('Register') . '</a>' . $after;
 		else
 			$link = '';
 	} else {

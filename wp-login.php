@@ -507,7 +507,7 @@ case 'rp' :
 <p id="nav">
 <a href="<?php echo esc_url( wp_login_url() ); ?>"><?php _e( 'Log in' ); ?></a>
 <?php if ( get_option( 'users_can_register' ) ) : ?>
- | <a href="<?php echo esc_url( site_url( 'wp-login.php?action=register', 'login' ) ); ?>"><?php _e( 'Register' ); ?></a>
+ | <a href="<?php echo esc_url( wp_register_url() ); ?>"><?php _e( 'Register' ); ?></a>
 <?php endif; ?>
 </p>
 

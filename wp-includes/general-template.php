@@ -208,6 +208,9 @@ function wp_loginout($redirect = '', $echo = true) {
  * @return string
  */
 function wp_register_url($redirect = '') {
+	if ( is_multisite() )
+		return apply_filters( 'wp_signup_location', network_site_url( 'wp-signup.php' ) );
+
 	return apply_filters( 'register_url', site_url( 'wp-login.php?action=register', 'login' ), $redirect );
 }
 

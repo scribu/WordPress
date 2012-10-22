@@ -818,7 +818,7 @@ function _wp_filter_build_unique_id($tag, $function, $priority) {
 }
 
 function _parse_hook_name( $tag ) {
-	$rest = explode( '.', $tag, 2 );
+	$rest = explode( ':', $tag, 2 );
 	$tag = array_shift( $rest );
 
 	$namespace = isset( $rest[0] ) ? $rest[0] : false;

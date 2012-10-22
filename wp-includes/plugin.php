@@ -65,8 +65,14 @@
 function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) {
 	global $wp_filter, $merged_filters;
 
+	list( $tag, $namespace ) = _parse_hook_name( $tag );
+
 	$idx = _wp_filter_build_unique_id($tag, $function_to_add, $priority);
-	$wp_filter[$tag][$priority][$idx] = array('function' => $function_to_add, 'accepted_args' => $accepted_args);
+	$wp_filter[$tag][$priority][$idx] = array(
+		'function'      => $function_to_add,
+		'accepted_args' => $accepted_args,
+		'namespace'     => $namespace
+	);
 	unset( $merged_filters[ $tag ] );
 	return true;
 }
@@ -257,19 +263,42 @@ function apply_filters_ref_array($tag, $args) {
  * @param int $accepted_args optional. The number of arguments the function accepts (default: 1).
  * @return boolean Whether the function existed before it was removed.
  */
-function remove_filter( $tag, $function_to_remove, $priority = 10 ) {
-	$function_to_remove = _wp_filter_build_unique_id($tag, $function_to_remove, $priority);
+function remove_filter( $tag, $function_to_remove = null, $priority = 10 ) {
+	global $wp_filter, $merged_filters;
 
-	$r = isset($GLOBALS['wp_filter'][$tag][$priority][$function_to_remove]);
+	list( $tag, $namespace ) = _parse_hook_name( $tag );
 
-	if ( true === $r) {
-		unset($GLOBALS['wp_filter'][$tag][$priority][$function_to_remove]);
-		if ( empty($GLOBALS['wp_filter'][$tag][$priority]) )
-			unset($GLOBALS['wp_filter'][$tag][$priority]);
-		unset($GLOBALS['merged_filters'][$tag]);
+	if ( !$namespace ) {
+		$function_to_remove = _wp_filter_build_unique_id( $tag, $function_to_remove, $priority );
+
+		$r = isset( $wp_filter[$tag][$priority][$function_to_remove] );
+
+		if ( true === $r ) {
+			unset( $wp_filter[$tag][$priority][$function_to_remove] );
+			if ( empty( $wp_filter[$tag][$priority] ) )
+				unset( $wp_filter[$tag][$priority] );
+			unset( $merged_filters[$tag] );
+		}
+
+		return $r;
 	}
 
-	return $r;
+	if ( !isset( $wp_filter[$tag] ) )
+		return false;
+
+	$found = false;
+	foreach ( $wp_filter[$tag] as $priority => &$callbacks ) {
+		foreach ( $callbacks as $idx => $cb ) {
+			if ( $cb['namespace'] === $namespace ) {
+				$found = true;
+				unset( $callbacks[$idx] );
+			}
+		}
+		if ( empty( $callbacks ) )
+			unset( $wp_filter[$tag] );
+	}
+
+	return $found;
 }
 
 /**
@@ -787,3 +816,13 @@ function _wp_filter_build_unique_id($tag, $function, $priority) {
 		return $function[0].$function[1];
 	}
 }
+
+function _parse_hook_name( $tag ) {
+	$rest = explode( '.', $tag, 2 );
+	$tag = array_shift( $rest );
+
+	$namespace = isset( $rest[0] ) ? $rest[0] : false;
+
+	return array( $tag, $namespace );
+}
+

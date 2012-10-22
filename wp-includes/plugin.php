@@ -283,10 +283,22 @@ function remove_filter( $tag, $function_to_remove = null, $priority = 10 ) {
 		return $r;
 	}
 
-	if ( !isset( $wp_filter[$tag] ) )
-		return false;
-
 	$found = false;
+
+	if ( '*' == $tag ) {
+		foreach ( $wp_filter as $tag => $_ ) {
+			_remove_namespaced_hook( $tag, $namespace, $found );
+		}
+	} else {
+		_remove_namespaced_hook( $tag, $namespace, $found );
+	}
+
+	return $found;
+}
+
+function _remove_namespaced_hook( $tag, $namespace, &$found ) {
+	global $wp_filter;
+
 	foreach ( $wp_filter[$tag] as $priority => &$callbacks ) {
 		foreach ( $callbacks as $idx => $cb ) {
 			if ( $cb['namespace'] === $namespace ) {
@@ -297,8 +309,6 @@ function remove_filter( $tag, $function_to_remove = null, $priority = 10 ) {
 		if ( empty( $callbacks ) )
 			unset( $wp_filter[$tag] );
 	}
-
-	return $found;
 }
 
 /**

@@ -133,13 +133,11 @@ if ( ! empty( $messages ) ) {
 			<td>
 			<?php
 			$protocol = is_ssl() ? 'https://' : 'http://';
-			$full_url = get_blogaddress_by_domain( $details->domain, $details->path );
-			$full_url = str_replace( 'http://', '', $full_url );
 
 			if ( $is_main_site ) { ?>
-			<code><?php echo $protocol; echo esc_html( $full_url );  ?></code>
+			<code><?php echo $protocol; echo esc_html( $site_url_no_http );  ?></code>
 			<?php } else { ?>
-			<?php echo $protocol; ?><input name="blog[url]" type="text" id="url" value="<?php echo esc_attr( $full_url ) ?>" />
+			<?php echo $protocol; ?><input name="blog[url]" type="text" id="url" value="<?php echo esc_attr( $site_url_no_http ) ?>" />
 
 			<br /><input type="checkbox" style="width:20px;" name="update_home_url" value="update" <?php checked ( get_option( 'siteurl' ) == untrailingslashit( get_blogaddress_by_id ($id ) ) || get_option( 'home' ) == untrailingslashit( get_blogaddress_by_id( $id ) ) ) ?> /> <?php _e( 'Update <code>siteurl</code> and <code>home</code> as well.' ); ?></td>
 			<?php

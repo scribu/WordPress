@@ -81,6 +81,7 @@ if ( isset($_REQUEST['action']) && 'update-site' == $_REQUEST['action'] ) {
 	update_blog_details( $id, $blog_data );
 
 	restore_current_blog();
+
 	wp_redirect( add_query_arg( array( 'update' => 'updated', 'id' => $id ), 'site-info.php') );
 	exit;
 }
@@ -136,10 +137,13 @@ if ( ! empty( $messages ) ) {
 
 			if ( $is_main_site ) { ?>
 			<code><?php echo $protocol; echo esc_html( $site_url_no_http );  ?></code>
-			<?php } else { ?>
+			<?php } else {
+				switch_to_blog( $id );
+			?>
+
 			<?php echo $protocol; ?><input name="blog[url]" type="text" id="url" value="<?php echo esc_attr( $site_url_no_http ) ?>" />
 
-			<br /><input type="checkbox" style="width:20px;" name="update_home_url" value="update" <?php checked ( get_option( 'siteurl' ) == untrailingslashit( get_blogaddress_by_id ($id ) ) || get_option( 'home' ) == untrailingslashit( get_blogaddress_by_id( $id ) ) ) ?> /> <?php _e( 'Update <code>siteurl</code> and <code>home</code> as well.' ); ?></td>
+			<br /><input type="checkbox" style="width:20px;" name="update_home_url" value="update" <?php checked( get_option( 'siteurl' ) == untrailingslashit( get_blogaddress_by_id ($id ) ) || get_option( 'home' ) == untrailingslashit( get_blogaddress_by_id( $id ) ) ) ?> /> <?php _e( 'Update <code>siteurl</code> and <code>home</code> as well.' ); ?></td>
 			<?php
 				restore_current_blog();
 			} ?>

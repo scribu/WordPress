@@ -49,8 +49,15 @@ if ( isset($_REQUEST['action']) && 'update-site' == $_REQUEST['action'] ) {
 
 	switch_to_blog( $id );
 
+	$url_parts = parse_url( 'http://' . $_POST['blog']['url'] );
+	unset( $_POST['blog']['url'] );
+
+	$_POST['blog']['domain'] = $url_parts['host'];
+	$_POST['blog']['path'] = $url_parts['path'];
+
 	if ( isset( $_POST['update_home_url'] ) && $_POST['update_home_url'] == 'update' ) {
 		$blog_address = get_blogaddress_by_domain( $_POST['blog']['domain'], $_POST['blog']['path'] );
+
 		if ( get_option( 'siteurl' ) != $blog_address )
 			update_option( 'siteurl', $blog_address );
 
@@ -122,28 +129,22 @@ if ( ! empty( $messages ) ) {
 	<input type="hidden" name="id" value="<?php echo esc_attr( $id ) ?>" />
 	<table class="form-table">
 		<tr class="form-field form-required">
-			<th scope="row"><?php _e( 'Domain' ) ?></th>
+			<th scope="row"><?php _e( 'URL' ) ?></th>
+			<td>
 			<?php
 			$protocol = is_ssl() ? 'https://' : 'http://';
+			$full_url = $details->domain . $details->path;
+
 			if ( $is_main_site ) { ?>
-			<td><code><?php echo $protocol; echo esc_attr( $details->domain ) ?></code></td>
+			<code><?php echo $protocol; echo esc_html( $full_url );  ?></code>
 			<?php } else { ?>
-			<td><?php echo $protocol; ?><input name="blog[domain]" type="text" id="domain" value="<?php echo esc_attr( $details->domain ) ?>" size="33" /></td>
-			<?php } ?>
-		</tr>
-		<tr class="form-field form-required">
-			<th scope="row"><?php _e( 'Path' ) ?></th>
-			<?php if ( $is_main_site ) { ?>
-			<td><code><?php echo esc_attr( $details->path ) ?></code></td>
-			<?php
-			} else {
-				switch_to_blog( $id );
-			?>
-			<td><input name="blog[path]" type="text" id="path" value="<?php echo esc_attr( $details->path ) ?>" size="40" style='margin-bottom:5px;' />
-			<br /><input type="checkbox" style="width:20px;" name="update_home_url" value="update" <?php if ( get_option( 'siteurl' ) == untrailingslashit( get_blogaddress_by_id ($id ) ) || get_option( 'home' ) == untrailingslashit( get_blogaddress_by_id( $id ) ) ) echo 'checked="checked"'; ?> /> <?php _e( 'Update <code>siteurl</code> and <code>home</code> as well.' ); ?></td>
+			<?php echo $protocol; ?><input name="blog[url]" type="text" id="url" value="<?php echo esc_attr( $full_url ) ?>" />
+
+			<br /><input type="checkbox" style="width:20px;" name="update_home_url" value="update" <?php checked ( get_option( 'siteurl' ) == untrailingslashit( get_blogaddress_by_id ($id ) ) || get_option( 'home' ) == untrailingslashit( get_blogaddress_by_id( $id ) ) ) ?> /> <?php _e( 'Update <code>siteurl</code> and <code>home</code> as well.' ); ?></td>
 			<?php
 				restore_current_blog();
 			} ?>
+			</td>
 		</tr>
 		<tr class="form-field">
 			<th scope="row"><?php _ex( 'Registered', 'site' ) ?></th>

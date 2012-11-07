@@ -133,7 +133,8 @@ if ( ! empty( $messages ) ) {
 			<td>
 			<?php
 			$protocol = is_ssl() ? 'https://' : 'http://';
-			$full_url = $details->domain . $details->path;
+			$full_url = get_blogaddress_by_domain( $details->domain, $details->path );
+			$full_url = str_replace( 'http://', '', $full_url );
 
 			if ( $is_main_site ) { ?>
 			<code><?php echo $protocol; echo esc_html( $full_url );  ?></code>

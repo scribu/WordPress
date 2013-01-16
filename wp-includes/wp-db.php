@@ -487,11 +487,14 @@ class wpdb {
 	protected $dbhost;
 
 	/**
-	 * Database Handle
+	 * Database driver object
 	 *
-	 * @since 0.71
+	 * Allow for simple, and backwards compatible, pluggable database drivers
+	 * like PDO_mysql and mysqli to power wpdb
+	 * 
 	 * @access protected
-	 * @var string
+	 * @since 3.5.0
+	 * @var wpdb_driver
 	 */
 	protected $dbh;
 
@@ -519,6 +522,46 @@ class wpdb {
 	public $is_mysql = null;
 
 	/**
+	 * Pick the right adapter and return an instance
+	 * @static
+	 * @since 3.5.0
+	 * @param string $dbuser MySQL database user
+	 * @param string $dbpassword MySQL database password
+	 * @param string $dbname MySQL database name
+	 * @param string $dbhost MySQL database host
+	 * @return wpdb
+	 */
+	public function get_driver( ) {
+		
+		// Auto-pick the driver
+		if ( defined( 'WPDB_DRIVER' ) ) {
+			$driver = WPDB_DRIVER;
+		} elseif ( extension_loaded( 'pdo_mysql' ) ) {
+			$driver = 'pdo_mysql';
+		} elseif ( extension_loaded( 'mysqli' ) ) {
+			$driver = 'mysqli';
+		} elseif ( extension_loaded( 'mysql' ) ) {
+			$driver = 'mysql';
+		}
+
+		// Get the new driver
+		if ( in_array( $driver, array( 'mysql', 'mysqli', 'pdo_mysql' ) ) ) {
+			require_once( ABSPATH . WPINC . '/class.wp-db-driver-' . $driver . '.php' );
+		}
+		$class = 'wpdb_driver_' . $driver;
+		
+		if ( !class_exists( $class ) ) {
+			wp_load_translations_early();
+			$this->bail( sprintf( __( "
+				<h1>No database drivers found</h1>.
+				<p>WordPress requires the mysql, mysqli, or pdo_mysql extension to talk to your database.</p>
+				<p>If you're unsure what these terms mean you should probably contact your host. If you still need help you can always visit the <a href='http://wordpress.org/support/'>WordPress Support Forums</a>.</p>
+			"), 'db_connect_fail' ) );			
+		}
+		$this->dbh = new $class();
+	}
+
+	/**
 	 * Connects to the database server and selects a database
 	 *
 	 * PHP5 style constructor for compatibility with PHP5. Does
@@ -534,6 +577,7 @@ class wpdb {
 	 * @param string $dbhost MySQL database host
 	 */
 	function __construct( $dbuser, $dbpassword, $dbname, $dbhost ) {
+		$this->get_driver();
 		register_shutdown_function( array( $this, '__destruct' ) );
 
 		if ( WP_DEBUG )
@@ -646,15 +690,10 @@ class wpdb {
 		if ( !isset($collate) )
 			$collate = $this->collate;
 		if ( $this->has_cap( 'collation', $dbh ) && !empty( $charset ) ) {
-			if ( function_exists( 'mysql_set_charset' ) && $this->has_cap( 'set_charset', $dbh ) ) {
-				mysql_set_charset( $charset, $dbh );
-				$this->real_escape = true;
-			} else {
-				$query = $this->prepare( 'SET NAMES %s', $charset );
-				if ( ! empty( $collate ) )
-					$query .= $this->prepare( ' COLLATE %s', $collate );
-				mysql_query( $query, $dbh );
-			}
+			$query = $this->prepare( 'SET NAMES %s', $charset );
+			if ( ! empty( $collate ) )
+				$query .= $this->prepare( ' COLLATE %s', $collate );
+			$this->dbh->query( $query );
 		}
 	}
 
@@ -837,22 +876,7 @@ class wpdb {
 	 * @return null Always null.
 	 */
 	function select( $db, $dbh = null ) {
-		if ( is_null($dbh) )
-			$dbh = $this->dbh;
-
-		if ( !@mysql_select_db( $db, $dbh ) ) {
-			$this->ready = false;
-			wp_load_translations_early();
-			$this->bail( sprintf( __( '<h1>Can&#8217;t select database</h1>
-<p>We were able to connect to the database server (which means your username and password is okay) but not able to select the <code>%1$s</code> database.</p>
-<ul>
-<li>Are you sure it exists?</li>
-<li>Does the user <code>%2$s</code> have permission to use the <code>%1$s</code> database?</li>
-<li>On some systems the name of your database is prefixed with your username, so it would be like <code>username_%1$s</code>. Could that be the problem?</li>
-</ul>
-<p>If you don\'t know how to set up a database you should <strong>contact your host</strong>. If all else fails you may find help at the <a href="http://wordpress.org/support/">WordPress Support Forums</a>.</p>' ), htmlspecialchars( $db, ENT_QUOTES ), htmlspecialchars( $this->dbuser, ENT_QUOTES ) ), 'db_select_fail' );
-			return;
-		}
+		$this->dbh->select( $db );
 	}
 
 	/**
@@ -882,7 +906,7 @@ class wpdb {
 	 */
 	function _real_escape( $string ) {
 		if ( $this->dbh && $this->real_escape )
-			return mysql_real_escape_string( $string, $this->dbh );
+			return $this->dbh->escape( $string );
 		else
 			return addslashes( $string );
 	}
@@ -1017,7 +1041,7 @@ class wpdb {
 		global $EZSQL_ERROR;
 
 		if ( !$str )
-			$str = mysql_error( $this->dbh );
+			$str = $this->dbh->get_error_message();
 		$EZSQL_ERROR[] = array( 'query' => $this->last_query, 'error_str' => $str );
 
 		if ( $this->suppress_errors )
@@ -1114,12 +1138,7 @@ class wpdb {
 	 * @return void
 	 */
 	function flush() {
-		$this->last_result = array();
-		$this->col_info    = null;
-		$this->last_query  = null;
-
-		if ( is_resource( $this->result ) )
-			mysql_free_result( $this->result );
+		$this->dbh->flush();
 	}
 
 	/**
@@ -1131,16 +1150,12 @@ class wpdb {
 
 		$this->is_mysql = true;
 
-		$new_link = defined( 'MYSQL_NEW_LINK' ) ? MYSQL_NEW_LINK : true;
-		$client_flags = defined( 'MYSQL_CLIENT_FLAGS' ) ? MYSQL_CLIENT_FLAGS : 0;
-
-		if ( WP_DEBUG ) {
-			$this->dbh = mysql_connect( $this->dbhost, $this->dbuser, $this->dbpassword, $new_link, $client_flags );
-		} else {
-			$this->dbh = @mysql_connect( $this->dbhost, $this->dbuser, $this->dbpassword, $new_link, $client_flags );
+		$host = $this->dbhost;
+		$port = 3306;
+		if ( false !== strpos( $this->dbhost, ':' ) ) {
+			list( $host, $port ) = explode( ':', $this->dbhost );
 		}
-
-		if ( !$this->dbh ) {
+		if ( !$this->dbh->connect( $host, $this->dbuser, $this->dbpassword, $port ) ) {
 			wp_load_translations_early();
 			$this->bail( sprintf( __( "
 <h1>Error establishing a database connection</h1>
@@ -1192,14 +1207,14 @@ class wpdb {
 		if ( defined( 'SAVEQUERIES' ) && SAVEQUERIES )
 			$this->timer_start();
 
-		$this->result = @mysql_query( $query, $this->dbh );
+		$result = $this->dbh->query( $query );
 		$this->num_queries++;
 
 		if ( defined( 'SAVEQUERIES' ) && SAVEQUERIES )
 			$this->queries[] = array( $query, $this->timer_stop(), $this->get_caller() );
 
 		// If there is an error then take note of it..
-		if ( $this->last_error = mysql_error( $this->dbh ) ) {
+		if ( $this->last_error = $this->dbh->get_error_message() ) {
 			$this->print_error();
 			return false;
 		}
@@ -1207,26 +1222,18 @@ class wpdb {
 		if ( preg_match( '/^\s*(create|alter|truncate|drop)\s/i', $query ) ) {
 			$return_val = $this->result;
 		} elseif ( preg_match( '/^\s*(insert|delete|update|replace)\s/i', $query ) ) {
-			$this->rows_affected = mysql_affected_rows( $this->dbh );
+			$this->rows_affected = $this->dbh->affected_rows();
 			// Take note of the insert_id
 			if ( preg_match( '/^\s*(insert|replace)\s/i', $query ) ) {
-				$this->insert_id = mysql_insert_id($this->dbh);
+				$this->insert_id = $this->dbh->insert_id();
 			}
 			// Return number of rows affected
 			$return_val = $this->rows_affected;
 		} else {
-			$num_rows = 0;
-			while ( $row = @mysql_fetch_object( $this->result ) ) {
-				$this->last_result[$num_rows] = $row;
-				$num_rows++;
-			}
-
-			// Log number of rows the query returned
-			// and return number of rows selected
-			$this->num_rows = $num_rows;
-			$return_val     = $num_rows;
+			$return_val = $this->num_rows = count( $this->last_result );
 		}
 
+		$this->last_result = $this->dbh->get_results();
 		return $return_val;
 	}
 
@@ -1556,12 +1563,7 @@ class wpdb {
 	 * @access protected
 	 */
 	protected function load_col_info() {
-		if ( $this->col_info )
-			return;
-
-		for ( $i = 0; $i < @mysql_num_fields( $this->result ); $i++ ) {
-			$this->col_info[ $i ] = @mysql_fetch_field( $this->result, $i );
-		}
+		$this->col_info = $this->dbh->load_col_info();
 	}
 
 	/**
@@ -1732,6 +1734,6 @@ class wpdb {
 	 * @return false|string false on failure, version number on success
 	 */
 	function db_version() {
-		return preg_replace( '/[^0-9.].*/', '', mysql_get_server_info( $this->dbh ) );
+		return $this->dbh->db_version();
 	}
 }

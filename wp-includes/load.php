@@ -326,6 +326,7 @@ function wp_set_lang_dir() {
 function require_wp_db() {
 	global $wpdb;
 
+	require( ABSPATH . WPINC . '/class.wp-db-driver.interface.php' );
 	require_once( ABSPATH . WPINC . '/wp-db.php' );
 	if ( file_exists( WP_CONTENT_DIR . '/db.php' ) )
 		require_once( WP_CONTENT_DIR . '/db.php' );

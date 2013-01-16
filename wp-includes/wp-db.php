@@ -491,7 +491,7 @@ class wpdb {
 	 *
 	 * Allow for simple, and backwards compatible, pluggable database drivers
 	 * like PDO_mysql and mysqli to power wpdb
-	 * 
+	 *
 	 * @access protected
 	 * @since 3.5.0
 	 * @var wpdb_driver
@@ -532,7 +532,7 @@ class wpdb {
 	 * @return wpdb
 	 */
 	public function get_driver( ) {
-		
+
 		// Auto-pick the driver
 		if ( defined( 'WPDB_DRIVER' ) ) {
 			$driver = WPDB_DRIVER;
@@ -546,17 +546,17 @@ class wpdb {
 
 		// Get the new driver
 		if ( in_array( $driver, array( 'mysql', 'mysqli', 'pdo_mysql' ) ) ) {
-			require_once( ABSPATH . WPINC . '/class.wp-db-driver-' . $driver . '.php' );
+			require_once( ABSPATH . WPINC . '/class-wp-db-driver-' . $driver . '.php' );
 		}
 		$class = 'wpdb_driver_' . $driver;
-		
+
 		if ( !class_exists( $class ) ) {
 			wp_load_translations_early();
 			$this->bail( sprintf( __( "
 				<h1>No database drivers found</h1>.
 				<p>WordPress requires the mysql, mysqli, or pdo_mysql extension to talk to your database.</p>
 				<p>If you're unsure what these terms mean you should probably contact your host. If you still need help you can always visit the <a href='http://wordpress.org/support/'>WordPress Support Forums</a>.</p>
-			"), 'db_connect_fail' ) );			
+			"), 'db_connect_fail' ) );
 		}
 		$this->dbh = new $class();
 	}

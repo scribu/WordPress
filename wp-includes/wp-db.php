@@ -522,16 +522,11 @@ class wpdb {
 	public $is_mysql = null;
 
 	/**
-	 * Pick the right adapter and return an instance
-	 * @static
-	 * @since 3.5.0
-	 * @param string $dbuser MySQL database user
-	 * @param string $dbpassword MySQL database password
-	 * @param string $dbname MySQL database name
-	 * @param string $dbhost MySQL database host
-	 * @return wpdb
+	 * Pick the adapter to be used for performing the actual queries.
+	 *
+	 * @since 3.6.0
 	 */
-	public function get_driver( ) {
+	private function set_driver() {
 
 		// Auto-pick the driver
 		if ( defined( 'WPDB_DRIVER' ) ) {
@@ -558,6 +553,7 @@ class wpdb {
 				<p>If you're unsure what these terms mean you should probably contact your host. If you still need help you can always visit the <a href='http://wordpress.org/support/'>WordPress Support Forums</a>.</p>
 			"), 'db_connect_fail' ) );
 		}
+
 		$this->dbh = new $class();
 	}
 
@@ -577,7 +573,8 @@ class wpdb {
 	 * @param string $dbhost MySQL database host
 	 */
 	function __construct( $dbuser, $dbpassword, $dbname, $dbhost ) {
-		$this->get_driver();
+		$this->set_driver();
+
 		register_shutdown_function( array( $this, '__destruct' ) );
 
 		if ( WP_DEBUG )

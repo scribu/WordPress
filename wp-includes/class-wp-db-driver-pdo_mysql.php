@@ -1,39 +1,34 @@
 <?php
 
 /**
- * WordPress Database Access Abstraction Object
+ * Database driver, using the PDO extension.
  *
- * It is possible to replace this class with your own
- * by setting the $wpdb global variable in wp-content/db.php
- * file to your class. The wpdb class will still be included,
- * so you can extend it or simply use your own.
- *
- * @link http://codex.wordpress.org/Function_Reference/wpdb_Class
+ * @link http://php.net/manual/en/book.pdo.php
  *
  * @package WordPress
  * @subpackage Database
- * @since 0.71
+ * @since 3.6.0
  */
 class wpdb_driver_pdo_mysql implements wpdb_driver {
-	
+
 	/**
 	 * Database link
 	 * @var PDO
 	 */
 	private $dbh = null;
-	
+
 	/**
 	 * Result set
 	 * @var PDOStatement
 	 */
 	private $result = null;
-	
+
 	/**
 	 * Cached column info
 	 * @var array|null
 	 */
 	private $col_info = null;
-	
+
 	/**
 	 * Array of fetched rows.
 	 * PDO doesn't have a "count rows" feature, so we have to fetch the rows
@@ -96,8 +91,8 @@ class wpdb_driver_pdo_mysql implements wpdb_driver {
 	 */
 	public function select( $db ) {
 		$this->dbh->exec( sprintf( 'USE %s', $db ) );
-	}		
-	
+	}
+
 	/**
 	 * Perform a MySQL database query, using current database connection.
 	 * @param string $query Database query
@@ -129,7 +124,7 @@ class wpdb_driver_pdo_mysql implements wpdb_driver {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Get last insert id
 	 * @return int

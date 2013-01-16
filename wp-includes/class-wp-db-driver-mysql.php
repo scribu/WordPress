@@ -1,39 +1,34 @@
 <?php
 
 /**
- * WordPress Database Access Abstraction Object
+ * Database driver, using the mysql extension.
  *
- * It is possible to replace this class with your own
- * by setting the $wpdb global variable in wp-content/db.php
- * file to your class. The wpdb class will still be included,
- * so you can extend it or simply use your own.
- *
- * @link http://codex.wordpress.org/Function_Reference/wpdb_Class
+ * @link http://php.net/manual/en/book.mysqli.php
  *
  * @package WordPress
  * @subpackage Database
- * @since 0.71
+ * @since 3.6.0
  */
 class wpdb_driver_mysql implements wpdb_driver {
-	
+
 	/**
 	 * Database link
 	 * @var resource
 	 */
 	private $dbh = null;
-	
+
 	/**
 	 * Result set
 	 * @var resource
 	 */
 	private $result = null;
-	
+
 	/**
 	 * Cached column info
 	 * @var array|null
 	 */
 	private $col_info = null;
-	
+
 	/**
 	 * Escape with mysql_real_escape_string()
 	 * @param  string $string
@@ -68,7 +63,7 @@ class wpdb_driver_mysql implements wpdb_driver {
 	 * @return bool
 	 */
 	public function connect( $host, $user, $pass, $port = 3306 ) {
-		
+
 		$new_link = defined( 'MYSQL_NEW_LINK' ) ? MYSQL_NEW_LINK : true;
 		$client_flags = defined( 'MYSQL_CLIENT_FLAGS' ) ? MYSQL_CLIENT_FLAGS : 0;
 
@@ -90,8 +85,8 @@ class wpdb_driver_mysql implements wpdb_driver {
 		} else {
 			@mysql_select_db( $db, $this->dbh );
 		}
-	}		
-	
+	}
+
 	/**
 	 * Perform a MySQL database query, using current database connection.
 	 * @param string $query Database query
@@ -116,7 +111,7 @@ class wpdb_driver_mysql implements wpdb_driver {
 	public function affected_rows() {
 		return mysql_affected_rows( $this->dbh );
 	}
-	
+
 	/**
 	 * Get last insert id
 	 * @return int

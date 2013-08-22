@@ -193,23 +193,14 @@ class WP_Users_List_Table extends WP_List_Table {
 		if ( ! $this->is_site_users )
 			$post_counts = count_many_users_posts( array_keys( $this->items ) );
 
-		$editable_roles = array_keys( get_editable_roles() );
-
 		$style = '';
 		foreach ( $this->items as $userid => $user_object ) {
-			if ( count( $user_object->roles ) <= 1 ) {
-				$role = reset( $user_object->roles );
-			} elseif ( $roles = array_intersect( array_values( $user_object->roles ), $editable_roles ) ) {
-				$role = reset( $roles );
-			} else {
-				$role = reset( $user_object->roles );
-			}
 
 			if ( is_multisite() && empty( $user_object->allcaps ) )
 				continue;
 
 			$style = ( ' class="alternate"' == $style ) ? '' : ' class="alternate"';
-			echo "\n\t" . $this->single_row( $user_object, $style, $role, isset( $post_counts ) ? $post_counts[ $userid ] : 0 );
+		 	echo "\n\t" . $this->single_row( $user_object, $style, isset( $post_counts ) ? $post_counts[ $userid ] : 0 );
 		}
 	}
 
@@ -220,12 +211,10 @@ class WP_Users_List_Table extends WP_List_Table {
 	 *
 	 * @param object $user_object
 	 * @param string $style Optional. Attributes added to the TR element. Must be sanitized.
-	 * @param string $role Key for the $wp_roles array.
 	 * @param int $numposts Optional. Post count to display for this user. Defaults to zero, as in, a new user has made zero posts.
 	 * @return string
 	 */
-	function single_row( $user_object, $style = '', $role = '', $numposts = 0 ) {
-		global $wp_roles;
+	function single_row( $user_object, $style = '', $numposts = 0 ) {
 
 		if ( !( is_object( $user_object ) && is_a( $user_object, 'WP_User' ) ) )
 			$user_object = get_userdata( (int) $user_object );
@@ -236,6 +225,8 @@ class WP_Users_List_Table extends WP_List_Table {
 			$url = "site-users.php?id={$this->site_id}&amp;";
 		else
 			$url = 'users.php?';
+
+		$roles_list = $this->get_role_list( $user_object );
 
 		$checkbox = '';
 		// Check if the user for this row is editable
@@ -260,14 +251,16 @@ class WP_Users_List_Table extends WP_List_Table {
 			$actions = apply_filters( 'user_row_actions', $actions, $user_object );
 			$edit .= $this->row_actions( $actions );
 
+			$role_classes = esc_attr( strtolower( str_replace( ', ', ' ', $roles_list ) ) );
+
 			// Set up the checkbox ( because the user is editable, otherwise it's empty )
 			$checkbox = '<label class="screen-reader-text" for="cb-select-' . $user_object->ID . '">' . sprintf( __( 'Select %s' ), $user_object->user_login ) . '</label>'
-						. "<input type='checkbox' name='users[]' id='user_{$user_object->ID}' class='$role' value='{$user_object->ID}' />";
+						. "<input type='checkbox' name='users[]' id='user_{$user_object->ID}' class='$role_classes' value='{$user_object->ID}' />";
 
 		} else {
 			$edit = '<strong>' . $user_object->user_login . '</strong>';
 		}
-		$role_name = isset( $wp_roles->role_names[$role] ) ? translate_user_role( $wp_roles->role_names[$role] ) : __( 'None' );
+
 		$avatar = get_avatar( $user_object->ID, 32 );
 
 		$r = "<tr id='user-$user_object->ID'$style>";
@@ -297,7 +290,7 @@ class WP_Users_List_Table extends WP_List_Table {
 					$r .= "<td $attributes><a href='mailto:$email' title='" . esc_attr( sprintf( __( 'E-mail: %s' ), $email ) ) . "'>$email</a></td>";
 					break;
 				case 'role':
-					$r .= "<td $attributes>$role_name</td>";
+					$r .= "<td $attributes>" . $roles_list . "</td>";
 					break;
 				case 'posts':
 					$attributes = 'class="posts column-posts num"' . $style;
@@ -320,5 +313,32 @@ class WP_Users_List_Table extends WP_List_Table {
 		$r .= '</tr>';
 
 		return $r;
+	}
+
+	/**
+	 * Generate a comma-delimited list of user roles for a given user object.
+	 *
+	 * @since 3.7.0
+	 *
+	 * @uses apply_filters() Calls 'get_role_list' on $role_list and $user_object.
+	 *
+	 * @param object $user_object The user object.
+	 * @return string A comma-delimited list of user roles.
+	 */
+	private function get_role_list( $user_object ) {
+		global $wp_roles;
+
+		$role_list = array();
+
+		foreach ( $user_object->roles as $role ) {
+			if ( isset( $wp_roles->role_names[ $role ] ) ) {
+				$role_list[] = translate_user_role( $wp_roles->role_names[ $role ] );
+			}
+		}
+
+		if ( empty( $role_list ) )
+			$role_list = _x( 'None', 'no roles' );
+
+		return implode( ', ', apply_filters( 'get_role_list', $role_list, $user_object ) );
 	}
 }
